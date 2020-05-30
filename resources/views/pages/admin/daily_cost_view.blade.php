@@ -202,6 +202,7 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($costs as $cost)
+                                            @if ($cost->payer == Auth::user()->id)
                                             <tr>
                                                 <td>{{ date("d/m/Y", strtotime($cost->date)) }}</td>
                                                 <td>{{ $cost->payfor }}</td>
@@ -231,6 +232,7 @@
                                                     <a href="{{ route('get_delete_daily_cost',['id'=>$cost->id]) }}" class="btn btn-sm btn-danger delete"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>
+                                            @endif
                                             @endforeach
                                         </tbody>
                                     </table>
