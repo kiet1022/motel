@@ -38,13 +38,16 @@ Route::prefix('admin')->middleware('auth')->group(function(){
 
     Route::get('monthlyCostView/{month}/{year}','AdminController@getMonthlyCostView')->name('get_monthly_cost_view');
     Route::post('filterMonthlyCost','AdminController@filterMonthlyCost')->name('filter_monthly_cost');
+
+    Route::get('sendMailNotify','AdminController@sendMail')->name('send_mail');
 });
 
 Route::get('/test', function () {
     // $user = User::find(1);
-    $user = new User;
-    $user->name = "Trần Hoàng Thạch";
-    $user->email = "thach123@gmail.com";
-    $user->password = bcrypt("000000");
-    $user->save();
+    // $user = new User;
+    // $user->name = "Trần Hoàng Thạch";
+    // $user->email = "thach123@gmail.com";
+    // $user->password = bcrypt("000000");
+    // $user->save();
+    Mail::to('kiet1022@gmail.com')->send(new MailNotify());
 });

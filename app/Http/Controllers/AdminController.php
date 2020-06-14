@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MailNotify;
 
 /* Model Import */
 Use App\Model\User;
@@ -211,5 +213,26 @@ class AdminController extends Controller
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
         return view('pages.admin.daily_cost_view')->with($this->data);
+    }
+
+    public function sendMail() {
+        $costs = DB::table('daily_costs')
+        ->whereRaw(DB::raw('MONTH(date) = 4 and YEAR(date) = '.date('Y').' and deleted_at is null'))
+        ->join('users','daily_costs.payer','=','users.id')
+        ->selectRaw('sum(daily_costs.total_per_one) AS total_per_one, sum(daily_costs.total_per_two) AS total_per_two')
+        ->get();
+
+        $totalOne = 0;
+        $totalTwo = 0;
+        foreach ($costs as $cost) {
+            $totalOne += $cost->total_per_one;
+            $totalTwo += $cost->total_per_two;
+        }
+
+        $data = array(
+            'costs' => $costs,
+        );
+        Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt', $totalOne));
+        // Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt', $totalTwo));
     }
 }

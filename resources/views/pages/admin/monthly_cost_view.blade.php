@@ -233,6 +233,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                    <a href="{{ route('send_mail')}}" class="btn btn-primary"><i class="fas fa-check"></i> Chốt và Gửi Mail Thông báo</a>
                                     <div id="tb-total">
                                         <table class="table table-hover tabel-stripped table-bordered mt-3">
                                             <tfoot>
