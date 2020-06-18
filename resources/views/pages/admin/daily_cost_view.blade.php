@@ -1,5 +1,5 @@
 @extends('core.admin')
-@section('title', 'Chi tiêu hàng ngày')
+@section('title', 'Chi tiêu chung')
 @section('css')
 <style>
         .btn-danger {
@@ -185,7 +185,7 @@
                                             </button>
                                         </div>            
                                     @endif
-                                    <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view') }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
+                                    <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['type'=>$type]) }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
                                     <hr>
                                     <table id="table" class="table table-hover tabel-stripped table-bordered">
                                         <thead class="thead-light">
@@ -202,7 +202,6 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($costs as $cost)
-                                            @if ($cost->payer == Auth::user()->id)
                                             <tr>
                                                 <td>{{ date("d/m/Y", strtotime($cost->date)) }}</td>
                                                 <td>{{ $cost->payfor }}</td>
@@ -232,7 +231,6 @@
                                                     <a href="{{ route('get_delete_daily_cost',['id'=>$cost->id]) }}" class="btn btn-sm btn-danger delete"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>
-                                            @endif
                                             @endforeach
                                         </tbody>
                                     </table>

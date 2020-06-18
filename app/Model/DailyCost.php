@@ -13,4 +13,8 @@ class DailyCost extends Model
     public function whoPay() {
         return $this->belongsTo('App\Model\User','payer','id');
     }
+
+    public function category() {
+        return $this->belongsTo('App\Model\Category','category','id');
+    }
 }

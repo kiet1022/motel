@@ -85,20 +85,33 @@
                                 @endforeach
                             </select>
                         </div>
-                        
-                        <div class="col-lg-1 form-group">
-                            <label for="is_together" class="lbl-name">Chi tiêu chung</label><br>
-                            <label class="switch">
-                                <input type="radio" class="is_together" name="is_together" value="1" checked>
-                                <span class="form-control slider round"></span>
-                            </label>
+
+                        <div class="col-lg-6 form-group @if ($type == "0") d-none @endif">
+                            <label for="category">Danh mục</label>
+                            <select id="category" class="form-control" name="category">
+                                @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}">
+                                    {{ $cat->name }}
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="col-lg-11 form-group">
-                            <label for="is_together" class="lbl-name">Chi tiêu cá nhân</label><br>
-                            <label class="switch">
-                                <input type="radio" class="is_together" name="is_together" value="0">
-                                <span class="form-control slider round"></span>
-                            </label>
+
+                        <div class="col-lg-12 form-group row">
+                            <div class="col-md-3 col-6">
+                                <label for="is_together" class="lbl-name">Chi tiêu chung</label><br>
+                                <label class="switch">
+                                    <input type="radio" class="is_together" name="is_together" value="1" @if ($type == "0") checked @endif>
+                                    <span class="form-control slider round"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-9 col-6">
+                                <label for="is_together" class="lbl-name">Chi tiêu cá nhân</label><br>
+                                <label class="switch">
+                                    <input type="radio" class="is_together" name="is_together" value="0" @if ($type == "1") checked @endif>
+                                    <span class="form-control slider round"></span>
+                                </label>
+                            </div>
                         </div>
 
                         <div class="col-lg-6 form-group percent">

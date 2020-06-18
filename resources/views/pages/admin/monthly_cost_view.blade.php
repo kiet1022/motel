@@ -147,14 +147,13 @@
                                             </div>
 
                                             <div class="col-lg-4 col-md-4 col-xs-12 form-group">
-                                                <label for="my-select">Người chi: </label>
-                                                <select id="my-select" class="form-control" name="payer">
-                                                    <option value="0" @if ($payer == 0) {{ "selected" }} @endif>Tất cả</option>
-                                                    @foreach ($users as $user)
-                                                        <option value="{{ $user->id }}" @if ($payer == $user->id) {{ "selected" }} @endif> {{ $user->name }}</option>
-                                                    @endforeach
+                                                <label for="my-select">Loại chi tiêu: </label>
+                                                <select id="my-select" class="form-control" name="type">
+                                                    <option value="0" @if ($type == 0) {{ "selected" }} @endif>Chi tiêu chung</option>
+                                                    <option value="1" @if ($type == 1) {{ "selected" }} @endif> Chi tiêu cá nhân</option>
                                                 </select>
                                             </div>
+
                                         </div>
 
                                         <div class="text-center">
@@ -190,12 +189,25 @@
                                                 $total = 0;
                                                 foreach ($costs as $cost) {
                                                     $total += $cost->total;
-                                                    $totalOne += $cost->total_per_one;
-                                                    $totalTwo += $cost->total_per_two;
+                                                    if ($type == 0) {
+                                                        $totalOne += $cost->total_per_one;
+                                                        $totalTwo += $cost->total_per_two;
+                                                    }
                                                 }
                                             @endphp
                                 <!-- Card Body -->
                                 <div class="card-body table-responsive">
+                                    <div id="tb-total-mobile" class="row mb-3">
+                                        <div class="col-12 border text-center" style="font-weight: bold">
+                                            <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($total) }} ₫</span>
+                                        </div>
+                                        <div class="col-12 border" style="font-weight: bold">
+                                            Kiệt: <span class="text-danger">{{ number_format($totalOne) }} ₫</span>
+                                        </div>
+                                        <div class="col-12 border" style="font-weight: bold">
+                                            Thạch: <span class="text-danger">{{ number_format($totalTwo) }} ₫</span>
+                                        </div>
+                                    </div>
                                     <table id="table1" class="table table-hover tabel-stripped table-bordered">
                                         <thead class="thead-light">
                                             <tr>

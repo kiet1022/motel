@@ -26,9 +26,10 @@ Route::get('/logout', 'Controller@logout')->name('logout');
 Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('fixedCostView', 'AdminController@getFixedCostView')->name('get_fixed_cost_view');
     Route::get('dailyCostView', 'AdminController@getDailyCostView')->name('get_daily_cost_view');
+    Route::get('personalDailyCost','AdminController@personalDailyCost')->name('get_personal_daily_cost_view');
     Route::post('filterDailyCost','AdminController@filterDailyCost')->name('filter_daily_cost');
 
-    Route::get('addDailyCost','AdminController@getAddDailyCostView')->name('get_add_daily_cost_view');
+    Route::get('addDailyCost/{type}','AdminController@getAddDailyCostView')->name('get_add_daily_cost_view');
     Route::post('addDailyCost','AdminController@addDailyCost')->name('post_add_daily_cost');
 
     Route::get('editDailyCost/{id}','AdminController@getEditDailyCostView')->name('get_edit_daily_cost_view');

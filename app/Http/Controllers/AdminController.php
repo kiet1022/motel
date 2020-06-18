@@ -12,6 +12,7 @@ use App\Mail\MailNotify;
 Use App\Model\User;
 Use App\Model\FixedCost;
 Use App\Model\DailyCost;
+Use App\Model\Category;
 
 class AdminController extends Controller
 {
@@ -23,8 +24,9 @@ class AdminController extends Controller
     public function getDailyCostView() {
         $this->data['month'] = date('m');
         $this->data['year'] = date('Y');
+        $this->data['type'] = '0';
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null'))
+                                    ->whereRaw(DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0'))
                                     ->where('payer', Auth::user()->id)
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
@@ -32,8 +34,10 @@ class AdminController extends Controller
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function getAddDailyCostView() {
+    public function getAddDailyCostView($type) {
         $this->data['users'] = User::all();
+        $this->data['categories'] = Category::all();
+        $this->data['type'] = $type;
         return view('pages.admin.add_daily_cost')->with($this->data);
     }
 
@@ -170,34 +174,61 @@ class AdminController extends Controller
         }
     }
 
+    public function personalDailyCost() {
+        $this->data['month'] = date('m');
+        $this->data['year'] = date('Y');
+        $this->data['type'] = '1';
+        $condition = DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null');
+
+        if (Auth::user()->id == 1) {
+            $condition .= DB::raw(' and daily_costs.percent_per_two = 0');
+        } else {
+            $condition .= DB::raw(' and daily_costs.percent_per_one = 0');
+        }
+        $this->data['costs'] = DB::table('daily_costs')
+                                    ->whereRaw($condition)
+                                    ->where('payer', Auth::user()->id)
+                                    ->join('users','daily_costs.payer','=','users.id')
+                                    ->select('daily_costs.*','users.name')
+                                    ->get();
+        return view('pages.admin.daily_cost_view')->with($this->data);
+    }
+
     public function getMonthlyCostView($month, $year) {
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and deleted_at is null'))
+                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and deleted_at is null and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0'))
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
         $this->data['month'] = $month;
         $this->data['year'] = $year;
-        $this->data['payer'] = 0;
+        $this->data['type'] = 0;
         $this->data['users'] = User::all();
         // return $this->data;
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
     public function filterMonthlyCost(Request $re) {
-        if ($re->payer != 0) {
-            $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null and daily_costs.payer = '.$re->payer);
-        } else {
-            $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null');
+        $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null');
+
+        if ($re->type == 0) {
+            $condition .= DB::raw(' and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0');
+        } else if ($re->type == 1) {
+            if (Auth::user()->id == 1) {
+                $condition .= DB::raw(' and daily_costs.percent_per_one > 0 and daily_costs.percent_per_two <= 0 AND daily_costs.payer = '.Auth::user()->id);
+            } else if (Auth::user()->id == 2) {
+                $condition .= DB::raw(' and daily_costs.percent_per_two > 0 and daily_costs.percent_per_one <= 0 AND daily_costs.payer = '.Auth::user()->id);
+            }
         }
         $this->data['costs'] = DB::table('daily_costs')
                                     ->whereRaw($condition)
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
+                                    // return $this->data;
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
-        $this->data['payer'] = $re->payer;
+        $this->data['type'] = $re->type;
         $this->data['users'] = User::all();
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
