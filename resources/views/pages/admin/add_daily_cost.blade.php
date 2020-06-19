@@ -86,17 +86,6 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-6 form-group @if ($type == "0") d-none @endif">
-                            <label for="category">Danh mục</label>
-                            <select id="category" class="form-control" name="category">
-                                @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}">
-                                    {{ $cat->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         <div class="col-lg-12 form-group row">
                             <div class="col-md-3 col-6">
                                 <label for="is_together" class="lbl-name">Chi tiêu chung</label><br>
@@ -114,12 +103,23 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-6 form-group percent">
+                        <div class="col-lg-6 form-group category @if ($type == "0") d-none @endif">
+                            <label for="category">Danh mục</label>
+                            <select id="category" class="form-control" name="category">
+                                @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}">
+                                    {{ $cat->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-6 form-group percent @if ($type == "1") d-none @endif">
                             <label for="percent_per_one">Chia (%) Kiệt </label>
                             <input type="text" id="percent_per_one" name="percent_per_one" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="50" required>
                         </div>
                         
-                        <div class="col-lg-6 form-group percent">
+                        <div class="col-lg-6 form-group percent @if ($type == "1") d-none @endif">
                             <label for="percent_per_two">Chia (%) Thạch</label>
                             <input type="text" id="percent_per_two" name="percent_per_two" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="50" required>
                         </div>
@@ -178,12 +178,14 @@
             
             var isTogether = ev.target.value;
             if (isTogether == 1) {
-                $('.percent').css('display', 'block');
+                $('.percent').removeClass('d-none');
+                $('.category').addClass('d-none');
                 // $('.lbl-name').html('Chi tiêu chung');
                 $('#percent_per_one').prop('disabled', false);
                 $('#percent_per_two').prop('disabled', false);
             } else {
-                $('.percent').css('display', 'none');
+                $('.percent').addClass('d-none');
+                $('.category').removeClass('d-none');
                 // $('.lbl-name').html('Chi tiêu cá nhân');
                 $('#percent_per_one').prop('disabled', true);
                 $('#percent_per_two').prop('disabled', true);

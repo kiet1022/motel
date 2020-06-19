@@ -57,6 +57,7 @@ class AdminController extends Controller
                 $daily->total_per_one = ($re->total * ($re->percent_per_one/100));
                 $daily->total_per_two = ($re->total * ($re->percent_per_two/100));
                 $daily->is_together = 1;
+                $daily->category = null;
             } else {
                 if ($re->payer == 1) {
                     $daily->percent_per_one = 100;
@@ -70,6 +71,7 @@ class AdminController extends Controller
                     $daily->total_per_one = 0;
                 }
                 $daily->is_together = 0;
+                $daily->category = $re->category;
             }
 
             if($re->hasFile('image')){
@@ -93,9 +95,12 @@ class AdminController extends Controller
         }
     }
 
-    public function getEditDailyCostView($id) {
+    public function getEditDailyCostView($id,$type) {
         $this->data['oldCost'] = DailyCost::find($id);
+        // return $this->data;
         $this->data['users'] = User::all();
+        $this->data['categories'] = Category::all();
+        $this->data['type'] = $type;
         return view('pages.admin.edit_daily_cost')->with($this->data);
     }
 
@@ -107,7 +112,6 @@ class AdminController extends Controller
             $oldDaily->payer = $re->payer;
             $oldDaily->date = $re->date;
             $oldDaily->total = $re->total;
-
             $togetherFlg = $re->is_together;
             if ($togetherFlg == 1) {
                 $oldDaily->percent_per_one = $re->percent_per_one;
@@ -115,6 +119,7 @@ class AdminController extends Controller
                 $oldDaily->total_per_one = ($re->total * ($re->percent_per_one/100));
                 $oldDaily->total_per_two = ($re->total * ($re->percent_per_two/100));
                 $oldDaily->is_together = 1;
+                $oldDaily->category = null;
             } else {
                 if ($re->payer == 1) {
                     $oldDaily->percent_per_one = 100;
@@ -128,6 +133,7 @@ class AdminController extends Controller
                     $oldDaily->total_per_one = 0;
                 }
                 $oldDaily->is_together = 0;
+                $oldDaily->category = $re->category;
             }
 
             $dltFlg = $re->img_dlt_flg;
@@ -229,7 +235,6 @@ class AdminController extends Controller
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
         $this->data['type'] = $re->type;
-        $this->data['users'] = User::all();
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
@@ -243,6 +248,7 @@ class AdminController extends Controller
                                     ->get();
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
+        $this->data['type'] = $re->type;
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 

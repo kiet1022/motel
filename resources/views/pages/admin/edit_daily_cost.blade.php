@@ -85,28 +85,41 @@
                                 @endforeach
                             </select>
                         </div>
-                        
-                        <div class="col-lg-1 form-group">
-                            <label for="is_together" class="lbl-name">Chi tiêu chung</label><br>
-                            <label class="switch">
-                                <input type="radio" class="is_together" name="is_together" value="1" @if ($oldCost->is_together == 1) {{ "checked" }}@endif>
-                                <span class="form-control slider round"></span>
-                            </label>
-                        </div>
-                        <div class="col-lg-11 form-group">
-                            <label for="is_together" class="lbl-name">Chi tiêu cá nhân</label><br>
-                            <label class="switch">
-                                <input type="radio" class="is_together" name="is_together" value="0" @if ($oldCost->is_together == 0) {{ "checked" }}@endif>
-                                <span class="form-control slider round"></span>
-                            </label>
+
+                        <div class="col-lg-12 form-group row">
+                            <div class="col-md-3 col-6">
+                                <label for="is_together" class="lbl-name">Chi tiêu chung</label><br>
+                                <label class="switch">
+                                    <input type="radio" class="is_together" name="is_together" value="1" @if ($type == "0") checked @endif>
+                                    <span class="form-control slider round"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-9 col-6">
+                                <label for="is_together" class="lbl-name">Chi tiêu cá nhân</label><br>
+                                <label class="switch">
+                                    <input type="radio" class="is_together" name="is_together" value="0" @if ($type == "1") checked @endif>
+                                    <span class="form-control slider round"></span>
+                                </label>
+                            </div>
                         </div>
 
-                        <div class="col-lg-6 form-group percent @if($oldCost->is_together == 0) {{ 'd-none' }}@endif">
+                        <div class="col-lg-6 form-group category @if ($oldCost->category == null) d-none @endif">
+                            <label for="category">Danh mục</label>
+                            <select id="category" class="form-control" name="category">
+                                @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}" @if ($oldCost->category == $cat->id) selected @endif>
+                                    {{ $cat->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-6 form-group percent @if ($type == "1") d-none @endif">
                             <label for="percent_per_one">Chia (%) Kiệt </label>
                             <input type="text" id="percent_per_one" name="percent_per_one" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ $oldCost->percent_per_one }}" required @if($oldCost->is_together == 0) {{ "disabled" }}@endif>
                         </div>
                         
-                        <div class="col-lg-6 form-group percent @if($oldCost->is_together == 0) {{ 'd-none' }}@endif">
+                        <div class="col-lg-6 form-group percent @if ($type == "1") d-none @endif">
                             <label for="percent_per_two">Chia (%) Thạch</label>
                             <input type="text" id="percent_per_two" name="percent_per_two" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ $oldCost->percent_per_two }}" required @if($oldCost->is_together == 0) {{ "disabled" }}@endif>
                         </div>
@@ -175,11 +188,13 @@
             var isTogether = ev.target.value;
             if (isTogether == 1) {
                 $('.percent').removeClass('d-none');
+                $('.category').addClass('d-none');
                 // $('.lbl-name').html('Chi tiêu chung');
                 $('#percent_per_one').prop('disabled', false);
                 $('#percent_per_two').prop('disabled', false);
             } else {
                 $('.percent').addClass('d-none');
+                $('.category').removeClass('d-none');
                 // $('.lbl-name').html('Chi tiêu cá nhân');
                 $('#percent_per_one').prop('disabled', true);
                 $('#percent_per_two').prop('disabled', true);

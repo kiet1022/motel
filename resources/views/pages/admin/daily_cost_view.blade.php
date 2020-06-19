@@ -136,7 +136,7 @@
                                                     @endfor
                                                 </select>
                                             </div>
-
+                                            <input type="hidden" name="type" value="{{$type}}" >
                                         </div>
 
                                         <div class="text-center">
@@ -227,7 +227,7 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="{{ route('get_edit_daily_cost_view',['id'=>$cost->id]) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
+                                                    <a href="{{ route('get_edit_daily_cost_view',['id'=>$cost->id,'type'=>$type]) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
                                                     <a href="{{ route('get_delete_daily_cost',['id'=>$cost->id]) }}" class="btn btn-sm btn-danger delete"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>

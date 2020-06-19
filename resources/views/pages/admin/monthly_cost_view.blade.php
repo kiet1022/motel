@@ -224,8 +224,7 @@
                                         </thead>
                                         
                                         <tbody>
-                                            @foreach ($costs as $cost)
-                                            @if ($cost->percent_per_one > 0 && $cost->percent_per_two > 0)                                                
+                                            @foreach ($costs as $cost)                                        
                                             <tr>
                                                 <td>{{ date("d/m/Y", strtotime($cost->date)) }}</td>
                                                 <td>{{ $cost->payfor }}</td>
@@ -241,7 +240,6 @@
                                                     @endif
                                                 </td>
                                             </tr>
-                                            @endif
                                             @endforeach
                                         </tbody>
                                     </table>
