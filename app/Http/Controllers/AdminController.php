@@ -24,7 +24,7 @@ class AdminController extends Controller
     public function getDailyCostView() {
         $this->data['month'] = date('m');
         $this->data['year'] = date('Y');
-        $this->data['type'] = '0';
+        $this->data['together'] = config('constants.COST_TYPE.TOGETHER');
         $this->data['costs'] = DB::table('daily_costs')
                                     ->whereRaw(DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0'))
                                     ->where('payer', Auth::user()->id)
@@ -34,10 +34,10 @@ class AdminController extends Controller
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function getAddDailyCostView($type) {
+    public function getAddDailyCostView($together) {
         $this->data['users'] = User::all();
         $this->data['categories'] = Category::all();
-        $this->data['type'] = $type;
+        $this->data['together'] = $together;
         return view('pages.admin.add_daily_cost')->with($this->data);
     }
 
@@ -95,12 +95,12 @@ class AdminController extends Controller
         }
     }
 
-    public function getEditDailyCostView($id,$type) {
+    public function getEditDailyCostView($id,$together) {
         $this->data['oldCost'] = DailyCost::find($id);
         // return $this->data;
         $this->data['users'] = User::all();
         $this->data['categories'] = Category::all();
-        $this->data['type'] = $type;
+        $this->data['together'] = $together;
         return view('pages.admin.edit_daily_cost')->with($this->data);
     }
 
@@ -183,7 +183,7 @@ class AdminController extends Controller
     public function personalDailyCost() {
         $this->data['month'] = date('m');
         $this->data['year'] = date('Y');
-        $this->data['type'] = '1';
+        $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
         $condition = DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null');
 
         if (Auth::user()->id == 1) {
@@ -208,7 +208,7 @@ class AdminController extends Controller
                                     ->get();
         $this->data['month'] = $month;
         $this->data['year'] = $year;
-        $this->data['type'] = 0;
+        $this->data['together'] = config('constants.COST_TYPE.TOGETHER');
         $this->data['users'] = User::all();
         // return $this->data;
         return view('pages.admin.monthly_cost_view')->with($this->data);
@@ -217,9 +217,9 @@ class AdminController extends Controller
     public function filterMonthlyCost(Request $re) {
         $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null');
 
-        if ($re->type == 0) {
+        if ($re->together == config('constants.COST_TYPE.TOGETHER')) {
             $condition .= DB::raw(' and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0');
-        } else if ($re->type == 1) {
+        } else if ($re->together == config('constants.COST_TYPE.PERSONAL')) {
             if (Auth::user()->id == 1) {
                 $condition .= DB::raw(' and daily_costs.percent_per_one > 0 and daily_costs.percent_per_two <= 0 AND daily_costs.payer = '.Auth::user()->id);
             } else if (Auth::user()->id == 2) {
@@ -231,10 +231,15 @@ class AdminController extends Controller
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
-                                    // return $this->data;
+                                    // dd($this->data['costs']);
+                                    $this->data['costs'] = $this->data['costs']->groupBy('date');
+                                    $this->data['costs']->toArray();
+                                    // return $this->data['costs'];
+                                    // dd($this->data['costs']);
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
-        $this->data['type'] = $re->type;
+        $this->data['together'] = $re->together;
+        return view('pages.admin.test')->with($this->data);
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
@@ -248,7 +253,7 @@ class AdminController extends Controller
                                     ->get();
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
-        $this->data['type'] = $re->type;
+        $this->data['together'] = $re->together;
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 

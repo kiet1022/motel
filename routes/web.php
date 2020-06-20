@@ -29,10 +29,10 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('personalDailyCost','AdminController@personalDailyCost')->name('get_personal_daily_cost_view');
     Route::post('filterDailyCost','AdminController@filterDailyCost')->name('filter_daily_cost');
 
-    Route::get('addDailyCost/{type}','AdminController@getAddDailyCostView')->name('get_add_daily_cost_view');
+    Route::get('addDailyCost/{together}','AdminController@getAddDailyCostView')->name('get_add_daily_cost_view');
     Route::post('addDailyCost','AdminController@addDailyCost')->name('post_add_daily_cost');
 
-    Route::get('editDailyCost/{id}/{type}','AdminController@getEditDailyCostView')->name('get_edit_daily_cost_view');
+    Route::get('editDailyCost/{id}/{together}','AdminController@getEditDailyCostView')->name('get_edit_daily_cost_view');
     Route::post('editDailyCost/{id}','AdminController@editDailyCost')->name('post_edit_daily_cost');
 
     Route::get('deleteDailyCost/{id}','AdminController@deleteDailyCost')->name('get_delete_daily_cost');

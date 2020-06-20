@@ -1,102 +1,5 @@
 @extends('core.admin')
 @section('title', 'Chi tiêu tháng'." $month/$year")
-@section('css')
-    <style>
-         /* 
-        Generic Styling, for Desktops/Laptops 
-        */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-        /* Zebra striping */
-        tr:nth-of-type(odd) { 
-            background: #eee; 
-        }
-        th { 
-            background: #fff;
-            color: #94879f;
-            font-weight: bold; 
-        }
-        td, th { 
-            padding: 6px; 
-            border: 1px solid #ccc; 
-            text-align: left; 
-        }
-        td:nth-of-type(9) {
-            text-align: center;
-        }
-
-        #tb-total-mobile {
-            display: none;
-        }
-
-        #tb-total {
-            display: block;
-        }
-        /* 
-            Max width before this PARTICULAR table gets nasty
-            This query will take effect for any screen smaller than 760px
-            and also iPads specifically.
-        */
-    @media only screen and (max-width: 760px),
-    (min-device-width: 768px) and (max-device-width: 1024px)  {
-        #tb-total-mobile {
-            display: block;
-        }
-
-        #tb-total {
-            display: none;
-        }
-        /* Force table to not be like tables anymore */
-        table, thead, tbody, th, td, tr { 
-            display: block; 
-        }
-        
-        /* Hide headers (but not display: none;, for accessibility) */
-        thead tr { 
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
-        
-        tr { border: 1px solid #ccc; margin-bottom: 5px}
-        
-        td { 
-            /* Behave  like a "row" */
-            border: none;
-            border-bottom: 1px solid #eee; 
-            position: relative;
-            padding-left: 50%;
-        }
-        
-        td:before { 
-            /* Now like a header */
-            /* position: absolute; */
-            /* Top/left values mimic padding */
-            top: 6px;
-            left: 6px;
-            width: 45%; 
-            padding-right: 10px; 
-            white-space: nowrap;
-        }
-        
-        /*
-        Label the data
-        */
-        td:nth-of-type(1):before { content: "Ngày chi:"; font-weight: bold;}
-        td:nth-of-type(2):before { content: "Lý do chi:"; font-weight: bold;}
-        td:nth-of-type(3):before { content: "Đã chi:"; font-weight: bold;}
-        td:nth-of-type(4):before { content: "Người chi:"; font-weight: bold;}
-        td:nth-of-type(5):before { content: "Phần trăm (Kiệt):"; font-weight: bold;}
-        td:nth-of-type(6):before { content: "Thực chi (Kiệt):"; font-weight: bold;}
-        td:nth-of-type(7):before { content: "Phần trăm (Thạch):"; font-weight: bold;}
-        td:nth-of-type(8):before { content: "Thực chi (Thạch):"; font-weight: bold;}
-        td:nth-of-type(9):before { content: "Hóa đơn:"; font-weight: bold;}
-        td:nth-of-type(9) { text-align: unset; }
-    }
-    </style>
-@endsection
 @section('content')
     
                 <!-- Begin Page Content -->
@@ -185,7 +88,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                @php
+                                {{-- @php
                                                 $totalOne = 0;
                                                 $totalTwo = 0;
                                                 $total = 0;
@@ -196,10 +99,10 @@
                                                         $totalTwo += $cost->total_per_two;
                                                     }
                                                 }
-                                            @endphp
+                                            @endphp --}}
                                 <!-- Card Body -->
                                 <div class="card-body table-responsive">
-                                    <div id="tb-total-mobile" class="row mb-3">
+                                    {{-- <div id="tb-total-mobile" class="row mb-3">
                                         <div class="col-12 border text-center" style="font-weight: bold">
                                             <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($total) }} ₫</span>
                                         </div>
@@ -209,7 +112,7 @@
                                         <div class="col-12 border" style="font-weight: bold">
                                             Thạch: <span class="text-danger">{{ number_format($totalTwo) }} ₫</span>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     <table id="table1" class="table table-hover tabel-stripped table-bordered">
                                         <thead class="thead-light">
                                             <tr>
@@ -226,8 +129,21 @@
                                         </thead>
                                         
                                         <tbody>
-                                            @foreach ($costs as $cost)                                        
-                                            <tr>
+                                            @foreach ($costs as $cost)
+                                            {{$cost[0]->date}}
+                                            @for ($i=0; $i < count($cost); $i++)
+                                            {{$cost[$i]->payfor}}
+                                            @endfor
+                                            {{-- @php for ($i=0; $i < count($cost); $i++) { 
+                                                echo $cost[$i]->payfor;
+                                            }
+                                            @endphp --}}
+                                            {{-- {{count($cost)}} --}}
+                                            {{-- @foreach ($cost as $ct)
+                                            {{$ct}}
+                                            @endforeach --}}
+                                                
+                                            {{-- <tr>
                                                 <td>{{ date("d/m/Y", strtotime($cost->date)) }}</td>
                                                 <td>{{ $cost->payfor }}</td>
                                                 <td>{{ number_format($cost->total) }} ₫</td>
@@ -241,35 +157,12 @@
                                                         <a class="btn btn-primary btn-sm" href="{{ asset('img/'.$cost->image) }}" target="_blank">Xem</a>
                                                     @endif
                                                 </td>
-                                            </tr>
+                                            </tr> --}}
                                             @endforeach
                                         </tbody>
                                     </table>
                                     <a href="{{ route('send_mail')}}" class="btn btn-primary"><i class="fas fa-envelope"></i> Gửi Mail</a>
-                                    <div id="tb-total">
-                                        <table class="table table-hover tabel-stripped table-bordered mt-3">
-                                            <tfoot>
-                                                <tr>
-                                                    <th class="text-center" rowspan="2" colspan="2"><h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($total) }} ₫</span></th>
-                                                    <th colspan="8">Kiệt: <span class="text-danger">{{ number_format($totalOne) }} ₫</span></th>
-                                                </tr>
-                                                <tr>
-                                                    <th colspan="8">Thạch: <span class="text-danger">{{ number_format($totalTwo) }} ₫</span></th>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                    <div id="tb-total-mobile" class="row mt-3">
-                                        <div class="col-12 border text-center" style="font-weight: bold">
-                                            <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($total) }} ₫</span>
-                                        </div>
-                                        <div class="col-12 border" style="font-weight: bold">
-                                            Kiệt: <span class="text-danger">{{ number_format($totalOne) }} ₫</span>
-                                        </div>
-                                        <div class="col-12 border" style="font-weight: bold">
-                                            Thạch: <span class="text-danger">{{ number_format($totalTwo) }} ₫</span>
-                                        </div>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>

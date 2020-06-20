@@ -136,7 +136,7 @@
                                                     @endfor
                                                 </select>
                                             </div>
-                                            <input type="hidden" name="type" value="{{$type}}" >
+                                            <input type="hidden" name="together" value="{{$together}}" >
                                         </div>
 
                                         <div class="text-center">
@@ -185,7 +185,7 @@
                                             </button>
                                         </div>            
                                     @endif
-                                    <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['type'=>$type]) }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
+                                    <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['together'=>$together]) }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
                                     <hr>
                                     <table id="table" class="table table-hover tabel-stripped table-bordered">
                                         <thead class="thead-light">
@@ -227,7 +227,7 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="{{ route('get_edit_daily_cost_view',['id'=>$cost->id,'type'=>$type]) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
+                                                    <a href="{{ route('get_edit_daily_cost_view',['id'=>$cost->id,'together'=>$together]) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
                                                     <a href="{{ route('get_delete_daily_cost',['id'=>$cost->id]) }}" class="btn btn-sm btn-danger delete"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>

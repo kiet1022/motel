@@ -90,14 +90,14 @@
                             <div class="col-md-3 col-6">
                                 <label for="is_together" class="lbl-name">Chi tiêu chung</label><br>
                                 <label class="switch">
-                                    <input type="radio" class="is_together" name="is_together" value="1" @if ($type == "0") checked @endif>
+                                    <input type="radio" class="is_together" name="is_together" value="1" @if ($together == config('constants.COST_TYPE.TOGETHER')) checked @endif>
                                     <span class="form-control slider round"></span>
                                 </label>
                             </div>
                             <div class="col-md-9 col-6">
                                 <label for="is_together" class="lbl-name">Chi tiêu cá nhân</label><br>
                                 <label class="switch">
-                                    <input type="radio" class="is_together" name="is_together" value="0" @if ($type == "1") checked @endif>
+                                    <input type="radio" class="is_together" name="is_together" value="0" @if ($together == config('constants.COST_TYPE.PERSONAL')) checked @endif>
                                     <span class="form-control slider round"></span>
                                 </label>
                             </div>
@@ -114,12 +114,12 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-6 form-group percent @if ($type == "1") d-none @endif">
+                        <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
                             <label for="percent_per_one">Chia (%) Kiệt </label>
                             <input type="text" id="percent_per_one" name="percent_per_one" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ $oldCost->percent_per_one }}" required @if($oldCost->is_together == 0) {{ "disabled" }}@endif>
                         </div>
                         
-                        <div class="col-lg-6 form-group percent @if ($type == "1") d-none @endif">
+                        <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
                             <label for="percent_per_two">Chia (%) Thạch</label>
                             <input type="text" id="percent_per_two" name="percent_per_two" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ $oldCost->percent_per_two }}" required @if($oldCost->is_together == 0) {{ "disabled" }}@endif>
                         </div>
