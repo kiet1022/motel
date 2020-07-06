@@ -11,8 +11,9 @@
         }
         /* Zebra striping */
         tr:nth-of-type(odd) { 
-            background: #eee; 
+            background: #f5f8ff; 
         }
+
         th { 
             background: #fff;
             color: #94879f;
@@ -34,13 +35,47 @@
         #tb-total {
             display: block;
         }
-        /* 
+        td.details-control {
+            background: url("{{ asset('img/control/details_open.png') }}") no-repeat center center;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            background: url("{{ asset('img/control/details_close.png') }}") no-repeat center center;
+        }
+        tr.shown>tr {
+            background: #fff !important;
+        }
+
+        .d-mobile {
+            display: block;
+        }
+
+        .d-pc {
+            display: none;
+        }
+                /* 
             Max width before this PARTICULAR table gets nasty
             This query will take effect for any screen smaller than 760px
             and also iPads specifically.
         */
     @media only screen and (max-width: 760px),
     (min-device-width: 768px) and (max-device-width: 1024px)  {
+
+        .d-mobile {
+            display: none;
+        }
+
+        .d-pc {
+            display: inline;
+        }
+
+        table#table1 {
+            width: auto !important;
+        }
+
+        table.table-detail {
+            width: auto !important;
+        }
         #tb-total-mobile {
             display: block;
         }
@@ -62,6 +97,18 @@
         
         tr { border: 1px solid #ccc; margin-bottom: 5px}
         
+        td.details-control {
+            background: url("{{ asset('img/control/details_open.png') }}") no-repeat right;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            background: url("{{ asset('img/control/details_close.png') }}") no-repeat right;
+        }
+
+        #table1 .table-detail tr:nth-of-type(even) { 
+            background: #fff; 
+        }
+
         td { 
             /* Behave  like a "row" */
             border: none;
@@ -82,18 +129,27 @@
         }
         
         /*
-        Label the data
+        Label of parent table
         */
-        td:nth-of-type(1):before { content: "Ngày chi:"; font-weight: bold;}
-        td:nth-of-type(2):before { content: "Lý do chi:"; font-weight: bold;}
-        td:nth-of-type(3):before { content: "Đã chi:"; font-weight: bold;}
-        td:nth-of-type(4):before { content: "Người chi:"; font-weight: bold;}
-        td:nth-of-type(5):before { content: "Phần trăm (Kiệt):"; font-weight: bold;}
-        td:nth-of-type(6):before { content: "Thực chi (Kiệt):"; font-weight: bold;}
-        td:nth-of-type(7):before { content: "Phần trăm (Thạch):"; font-weight: bold;}
-        td:nth-of-type(8):before { content: "Thực chi (Thạch):"; font-weight: bold;}
-        td:nth-of-type(9):before { content: "Hóa đơn:"; font-weight: bold;}
-        td:nth-of-type(9) { text-align: unset; }
+        table#table1 td:nth-of-type(1):before { content: "Chi tiết:"; font-weight: bold;}
+        table#table1 td:nth-of-type(2):before { content: "Ngày chi:"; font-weight: bold;}
+        table#table1 td:nth-of-type(3):before { content: "Đã chi:"; font-weight: bold;}
+        table#table1 td:nth-of-type(4):before { content: "Chia:"; font-weight: bold;}
+        table#table1 td:nth-of-type(5):before { content: ""; font-weight: bold;}
+
+        /*
+        Label of child table
+        */
+
+        #table1 .table-detail td:nth-of-type(1):before { content: "Lý do chi:"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(2):before { content: "Đã chi:"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(3):before { content: "Người chi:"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(4):before { content: "Phần trăm (Kiệt):"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(5):before { content: "Thực chi (Kiệt):"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(6):before { content: "Phần trăm (Thạch):"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(7):before { content: "Thực chi (Thạch):"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(8):before { content: "Hóa đơn:"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(8) { text-align: unset; }
     }
     </style>
 @endsection
@@ -186,22 +242,22 @@
                                     </div>
                                 </div>
                                 @php
-                                                $totalOne = 0;
-                                                $totalTwo = 0;
-                                                $total = 0;
-                                                foreach ($costs as $cost) {
-                                                    $total += $cost->total;
-                                                    if ($together == config('constants.COST_TYPE.TOGETHER')) {
-                                                        $totalOne += $cost->total_per_one;
-                                                        $totalTwo += $cost->total_per_two;
-                                                    }
-                                                }
-                                            @endphp
+                                    $totalOne = 0;
+                                    $totalTwo = 0;
+                                    $totalShow = 0;
+                                    foreach ($costs as $cost) {
+                                        foreach ($cost as $ct) {
+                                            $totalShow += $ct->total;
+                                            $totalOne += $ct->total_per_one;
+                                            $totalTwo += $ct->total_per_two;
+                                        }
+                                    }
+                                @endphp
                                 <!-- Card Body -->
                                 <div class="card-body table-responsive">
                                     <div id="tb-total-mobile" class="row mb-3">
                                         <div class="col-12 border text-center" style="font-weight: bold">
-                                            <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($total) }} ₫</span>
+                                            <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($totalShow) }} ₫</span>
                                         </div>
                                         <div class="col-12 border" style="font-weight: bold">
                                             Kiệt: <span class="text-danger">{{ number_format($totalOne) }} ₫</span>
@@ -210,36 +266,38 @@
                                             Thạch: <span class="text-danger">{{ number_format($totalTwo) }} ₫</span>
                                         </div>
                                     </div>
-                                    <table id="table1" class="table table-hover tabel-stripped table-bordered">
+                                    <table id="table1" class="table table-bordered">
                                         <thead class="thead-light">
                                             <tr>
+                                                <th>Chi tiết</th>
                                                 <th>Ngày chi</th>
-                                                <th>Lý do chi</th>
                                                 <th>Số tiền đã chi</th>
-                                                <th>Người chi</th>
-                                                <th>Phần trăm (Kiệt)</th>
-                                                <th>Thực chi (Kiệt)</th>
-                                                <th>Phần trăm (Thạch)</th>
-                                                <th>Thực chi (Thạch)</th>
-                                                <th>Hóa đơn</th>
+                                                <th>Chia đầu người</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         
                                         <tbody>
-                                            @foreach ($costs as $cost)                                        
+                                            @foreach ($costs as $cost)
                                             <tr>
-                                                <td>{{ date("d/m/Y", strtotime($cost->date)) }}</td>
-                                                <td>{{ $cost->payfor }}</td>
-                                                <td>{{ number_format($cost->total) }} ₫</td>
-                                                <td>{{ $cost->name }}</td>
-                                                <td>{{ $cost->percent_per_one }} %</td>
-                                                <td style="font-weight: bold;" class="text-danger"> {{ number_format($cost->total_per_one) }} ₫</td>
-                                                <td>{{ $cost->percent_per_two }} %</td>
-                                                <td style="font-weight: bold;" class="text-danger"> {{ number_format($cost->total_per_two) }} ₫</td>
+                                                <td></td>
+                                                <td>{{ showDateInDMY($cost[0]->date) }} <br class="d-mobile"> <span class="d-pc"> - </span> <span style="font-weight: bold;" class="text-danger">{{ convertEnDayToViDay($cost[0]->date) }}</span> </td>
+                                                    @php
+                                                        $total = 0;
+                                                        $ttOne = 0;
+                                                        $ttTwo = 0;
+                                                        for ($i = 0; $i < count($cost); $i++){
+                                                            $total += $cost[$i]->total;
+                                                            $ttOne += $cost[$i]->total_per_one;
+                                                            $ttTwo += $cost[$i]->total_per_two;
+                                                        }
+                                                    @endphp
+                                                <td style="font-weight: bold;" class="text-danger">{{ number_format($total) }} ₫</td>
                                                 <td>
-                                                    @if (isset($cost->image))
-                                                        <a class="btn btn-primary btn-sm" href="{{ asset('img/'.$cost->image) }}" target="_blank">Xem</a>
-                                                    @endif
+                                                    <span style="font-weight: normal;" class="text-primary">Kiệt: {{number_format($ttOne)}} ₫ - Thạch: {{number_format($ttTwo)}} ₫</span>
+                                                </td>
+                                                <td>                                            
+                                                    {{ $cost }}
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -250,7 +308,7 @@
                                         <table class="table table-hover tabel-stripped table-bordered mt-3">
                                             <tfoot>
                                                 <tr>
-                                                    <th class="text-center" rowspan="2" colspan="2"><h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($total) }} ₫</span></th>
+                                                    <th class="text-center" rowspan="2" colspan="2"><h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($totalShow) }} ₫</span></th>
                                                     <th colspan="8">Kiệt: <span class="text-danger">{{ number_format($totalOne) }} ₫</span></th>
                                                 </tr>
                                                 <tr>
@@ -261,7 +319,7 @@
                                     </div>
                                     <div id="tb-total-mobile" class="row mt-3">
                                         <div class="col-12 border text-center" style="font-weight: bold">
-                                            <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($total) }} ₫</span>
+                                            <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($totalShow) }} ₫</span>
                                         </div>
                                         <div class="col-12 border" style="font-weight: bold">
                                             Kiệt: <span class="text-danger">{{ number_format($totalOne) }} ₫</span>
@@ -283,8 +341,20 @@
 @section('js')
     <script>
         var table = $('#table1').DataTable({
-            "order": [0, 'desc']
+            "order": [1, 'desc'],
+            columnDefs: [ {
+                orderable: false,
+                className: 'details-control',
+                targets:   0,
+            },
+            {
+                "targets": [ 4 ],
+                "visible": false,
+                "searchable": false
+            },
+            { "width": "10%", "targets": 0 }]
         });
+        
         $(document).ready(function(){
             blockUI(false);
             
@@ -292,10 +362,81 @@
             $(document).on('submit',"form", function(e){
                 blockUI(true);
             });
+
+            // Show detail of first row
+            // $('tr td:first').click();
         })
         
-        $('#tb-total').html(
-            
-        )
+        $('#table1 tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+            var data = JSON.parse(row.data()[4]);
+            console.log(data);
+
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                row.child(format(data)).show();
+                $.fn.dataTable.ext.errMode = 'none';
+                $('table.table-detail').DataTable({
+                    columnDefs: [
+                    { "width": "5%", "targets": 3 },
+                    { "width": "5%", "targets": 5 }],
+                });
+                tr.addClass('shown');
+            }
+            } );
+
+    function format (data) {
+
+        console.log(data)
+        var count = 0;
+        // `d` is the original data object for the row
+        var html = '<table class="table table-hover tabel-stripped table-bordered table-detail">';
+        html += '<thead>';
+        html += '<tr>';
+            html += '<th>Lý do chi</th>';
+            html += '<th>Số tiền đã chi</th>';
+            html += '<th>Người chi</th>';
+            html += '<th>Phần trăm (Kiệt)</th>';
+            html += '<th>Thực chi (Kiệt)</th>';
+            html += '<th>Phần trăm (Thạch)</th>';
+            html += '<th>Thực chi (Thạch)</th>';
+            html += '<th>Hóa đơn</th></tr>';
+        html += '</tr>';                                     
+        html += '</thead>';
+        html += '<tbody>';
+
+        data.forEach(element => {
+        html += '<tr>';
+            html += '<td>'+element.payfor+'</td>';
+            html += '<td>'+numberFormat(element.total)+'</td>';
+            html += '<td>'+element.name+'</td>';
+            html += '<td>'+element.percent_per_one+'%</td>';
+            html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_one)+'</td>';
+            html += '<td>'+element.percent_per_two+'%</td>';
+            html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_two)+'</td>';
+            if (element.image != null) {
+                html += '<td><a class="btn btn-primary btn-sm" href="../img/'+element.image+'" target="_blank">Xem</a></td>';
+            } else {
+                html += '<td></td>';
+            }
+        html += '</tr>';
+        });
+        html += '</tbody>';
+        html += '</table>';
+        return html;
+    }
+    /**
+ * Format number to currency
+ * 
+ * @param {Integer} number the number that will be formated
+ */
+function numberFormat(number){
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+}
     </script>
 @endsection

@@ -1,5 +1,19 @@
 @extends('core.admin')
 @section('title', 'Chi tiêu tháng'." $month/$year")
+@section('css')
+<style>
+    td.details-control {
+    background: url('../img/control/details_open.png') no-repeat center center;
+    cursor: pointer;
+  }
+  tr.shown td.details-control {
+    background: url('../img/control/details_close.png') no-repeat center center;
+  }
+  tr.shown>tr {
+    background: #fff;
+  }
+</style>
+@endsection
 @section('content')
     
                 <!-- Begin Page Content -->
@@ -113,51 +127,31 @@
                                             Thạch: <span class="text-danger">{{ number_format($totalTwo) }} ₫</span>
                                         </div>
                                     </div> --}}
-                                    <table id="table1" class="table table-hover tabel-stripped table-bordered">
+                                    <table id="table1" class="table table-bordered">
                                         <thead class="thead-light">
                                             <tr>
+                                                <th>Chi tiết</th>
                                                 <th>Ngày chi</th>
-                                                <th>Lý do chi</th>
                                                 <th>Số tiền đã chi</th>
-                                                <th>Người chi</th>
-                                                <th>Phần trăm (Kiệt)</th>
-                                                <th>Thực chi (Kiệt)</th>
-                                                <th>Phần trăm (Thạch)</th>
-                                                <th>Thực chi (Thạch)</th>
-                                                <th>Hóa đơn</th>
                                             </tr>
                                         </thead>
                                         
                                         <tbody>
                                             @foreach ($costs as $cost)
-                                            {{$cost[0]->date}}
-                                            @for ($i=0; $i < count($cost); $i++)
-                                            {{$cost[$i]->payfor}}
-                                            @endfor
-                                            {{-- @php for ($i=0; $i < count($cost); $i++) { 
-                                                echo $cost[$i]->payfor;
-                                            }
-                                            @endphp --}}
-                                            {{-- {{count($cost)}} --}}
-                                            {{-- @foreach ($cost as $ct)
-                                            {{$ct}}
-                                            @endforeach --}}
-                                                
-                                            {{-- <tr>
-                                                <td>{{ date("d/m/Y", strtotime($cost->date)) }}</td>
-                                                <td>{{ $cost->payfor }}</td>
-                                                <td>{{ number_format($cost->total) }} ₫</td>
-                                                <td>{{ $cost->name }}</td>
-                                                <td>{{ $cost->percent_per_one }} %</td>
-                                                <td style="font-weight: bold;" class="text-danger"> {{ number_format($cost->total_per_one) }} ₫</td>
-                                                <td>{{ $cost->percent_per_two }} %</td>
-                                                <td style="font-weight: bold;" class="text-danger"> {{ number_format($cost->total_per_two) }} ₫</td>
-                                                <td>
-                                                    @if (isset($cost->image))
-                                                        <a class="btn btn-primary btn-sm" href="{{ asset('img/'.$cost->image) }}" target="_blank">Xem</a>
-                                                    @endif
+                                            <tr>
+                                                <td></td>
+                                                <td>{{ date("d/m/Y", strtotime($cost[0]->date)) }} </td>
+                                                    @php
+                                                        $total = 0;
+                                                        for ($i = 0; $i < count($cost); $i++){
+                                                            $total += $cost[$i]->total;
+                                                        }
+                                                    @endphp
+                                                <td>{{ number_format($total) }} ₫</td>
+                                                <td>                                            
+                                                    {{ $cost }}
                                                 </td>
-                                            </tr> --}}
+                                            </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -176,8 +170,20 @@
 @section('js')
     <script>
         var table = $('#table1').DataTable({
-            "order": [0, 'desc']
+            "order": [1, 'desc'],
+            columnDefs: [ {
+                orderable: false,
+                className: 'details-control',
+                targets:   0,
+            },
+            {
+                "targets": [ 3 ],
+                "visible": false,
+                "searchable": false
+            },
+            { "width": "10%", "targets": 0 }]
         });
+        
         $(document).ready(function(){
             blockUI(false);
             
@@ -185,10 +191,81 @@
             $(document).on('submit',"form", function(e){
                 blockUI(true);
             });
+
+            // Show detail of first row
+            $('tr td:first').click();
         })
         
-        $('#tb-total').html(
-            
-        )
+        $('#table1 tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+            var data = JSON.parse(row.data()[3]);
+            console.log(data);
+
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                row.child(format(data)).show();
+                $.fn.dataTable.ext.errMode = 'none';
+                $('table.table-detail').DataTable({
+                    columnDefs: [
+                    { "width": "5%", "targets": 3 },
+                    { "width": "5%", "targets": 5 }],
+                });
+                tr.addClass('shown');
+            }
+            } );
+
+    function format (data) {
+
+        console.log(data)
+        var count = 0;
+        // `d` is the original data object for the row
+        var html = '<table class="table table-hover tabel-stripped table-bordered table-detail">';
+        html += '<thead>';
+        html += '<tr>';
+            html += '<th>Lý do chi</th>';
+            html += '<th>Số tiền đã chi</th>';
+            html += '<th>Người chi</th>';
+            html += '<th>Phần trăm (Kiệt)</th>';
+            html += '<th>Thực chi (Kiệt)</th>';
+            html += '<th>Phần trăm (Thạch)</th>';
+            html += '<th>Thực chi (Thạch)</th>';
+            html += '<th>Hóa đơn</th></tr>';
+        html += '</tr>';                                     
+        html += '</thead>';
+        html += '<tbody>';
+
+        data.forEach(element => {
+        html += '<tr>';
+            html += '<td>'+element.payfor+'</td>';
+            html += '<td>'+numberFormat(element.total)+'</td>';
+            html += '<td>'+element.name+'</td>';
+            html += '<td>'+element.percent_per_one+'%</td>';
+            html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_one)+'</td>';
+            html += '<td>'+element.percent_per_two+'%</td>';
+            html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_two)+'</td>';
+            if (element.image != null) {
+                html += '<td><a class="btn btn-primary btn-sm" href="../img/'+element.image+'" target="_blank">Xem</a></td>';
+            } else {
+                html += '<td></td>';
+            }
+        html += '</tr>';
+        });
+        html += '</tbody>';
+        html += '</table>';
+        return html;
+    }
+    /**
+ * Format number to currency
+ * 
+ * @param {Integer} number the number that will be formated
+ */
+function numberFormat(number){
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+}
     </script>
 @endsection

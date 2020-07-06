@@ -200,12 +200,15 @@ class AdminController extends Controller
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function getMonthlyCostView($month, $year) {
+    public function getMonthlyCostView($month = 6, $year = 2020) {
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and deleted_at is null and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0'))
+                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and deleted_at is null and daily_costs.is_together = 1'))
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
+        $this->data['costs'] = $this->data['costs']->groupBy('date');
+        $this->data['costs']->toJson();
+        // return $this->data['costs'];
         $this->data['month'] = $month;
         $this->data['year'] = $year;
         $this->data['together'] = config('constants.COST_TYPE.TOGETHER');
@@ -218,12 +221,12 @@ class AdminController extends Controller
         $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null');
 
         if ($re->together == config('constants.COST_TYPE.TOGETHER')) {
-            $condition .= DB::raw(' and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0');
+            $condition .= DB::raw(' and daily_costs.is_together = 1');
         } else if ($re->together == config('constants.COST_TYPE.PERSONAL')) {
             if (Auth::user()->id == 1) {
-                $condition .= DB::raw(' and daily_costs.percent_per_one > 0 and daily_costs.percent_per_two <= 0 AND daily_costs.payer = '.Auth::user()->id);
+                $condition .= DB::raw(' and daily_costs.is_together = 0 AND daily_costs.payer = '.Auth::user()->id);
             } else if (Auth::user()->id == 2) {
-                $condition .= DB::raw(' and daily_costs.percent_per_two > 0 and daily_costs.percent_per_one <= 0 AND daily_costs.payer = '.Auth::user()->id);
+                $condition .= DB::raw(' and daily_costs.is_together = 0 AND daily_costs.payer = '.Auth::user()->id);
             }
         }
         $this->data['costs'] = DB::table('daily_costs')
@@ -231,15 +234,14 @@ class AdminController extends Controller
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
-                                    // dd($this->data['costs']);
-                                    $this->data['costs'] = $this->data['costs']->groupBy('date');
-                                    $this->data['costs']->toArray();
-                                    // return $this->data['costs'];
-                                    // dd($this->data['costs']);
+
+        $this->data['costs'] = $this->data['costs']->groupBy('date');
+        $this->data['costs']->toJson();
+
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
         $this->data['together'] = $re->together;
-        return view('pages.admin.test')->with($this->data);
+        // return view('pages.admin.test')->with($this->data);
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
