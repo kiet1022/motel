@@ -18,7 +18,7 @@
     @yield('css')
     <title>@yield('title')</title>
 </head>
-<body>
+<body id="page-top">
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
