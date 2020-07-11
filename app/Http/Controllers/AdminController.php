@@ -13,6 +13,7 @@ Use App\Model\User;
 Use App\Model\FixedCost;
 Use App\Model\DailyCost;
 Use App\Model\Category;
+Use App\Model\Installment;
 
 class AdminController extends Controller
 {
@@ -279,4 +280,43 @@ class AdminController extends Controller
         Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt', $totalOne));
         // Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt', $totalTwo));
     }
+
+    public function getInstallmentList() {$this->data['installments'] = Installment::where('payer', Auth::user()->id)->get();
+        return view('pages.admin.installment_list')->with($this->data);
+    }
+
+    public function getAddInstallmentList() {
+        return view('pages.admin.add_installment_list');
+    }
+
+    public function AddInstallmentList(Request $re) {
+        try {
+            DB::beginTransaction();
+            $installment = new Installment;
+            $installment->details = $re->details;
+            $installment->trans_date = $re->trans_date;
+            $installment->trans_amout = $re->trans_amount;
+            $installment->waiting_amout = $re->trans_amount;
+            $installment->start_date = $re->start_date;
+            $installment->due_date = $re->due_date;
+            $installment->cycle = $re->cycle;
+            $installment->payer = Auth::user()->id;
+
+            $installment->save();
+            DB::commit();
+            return redirect()->back()->with('success','Thêm thành công!');
+        } catch (Exception $ex) {
+            DB::rollback();
+            return redirect()->back()->with('error','Thêm Thất bại!');
+        }
+    }
+
+
+    public function InstallmentDetail($id) {
+        $details = Installment::find($id);
+        $this->data['ins_detail'] = $details;
+        $this->data['cost_per_month'] = round($details->trans_amout / $details->cycle, 2);
+        return view('pages.admin.installment_detail')->with($this->data);
+    }
+
 }

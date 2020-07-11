@@ -45,6 +45,21 @@
         </div>
     </li>
 
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Trả góp</span>
+        </a>
+        <div id="collapseThree" class="collapse" aria-labelledby="collapseThree" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                {{-- <h6 class="collapse-header">Chi phí cố đ</h6> --}}
+                {{-- <a class="collapse-item" href="{{ route('get_fixed_cost_view') }}">Chi phí cố định</a> --}}
+                <a class="collapse-item" href="{{ route('get_installment_list') }}">Danh sách</a>
+                <a class="collapse-item" href="{{ route('add_installment_page') }}">Thêm khoản trả góp</a>
+            </div>
+        </div>
+    </li>
+
     <!-- Nav Item - Utilities Collapse Menu -->
     {{-- <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">

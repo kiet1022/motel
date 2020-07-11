@@ -41,6 +41,13 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::post('filterMonthlyCost','AdminController@filterMonthlyCost')->name('filter_monthly_cost');
 
     Route::get('sendMailNotify','AdminController@sendMail')->name('send_mail');
+
+    Route::get('installment-list','AdminController@getInstallmentList')->name('get_installment_list');
+    Route::get('add-installment','AdminController@getAddInstallmentList')->name('add_installment_page');
+    Route::post('add-installment','AdminController@AddInstallmentList')->name('add_installment');
+
+    Route::get('installment-detail{id}','AdminController@InstallmentDetail')->name('installment_details');
+    
 });
 
 Route::get('/test', function () {
