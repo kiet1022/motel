@@ -7,13 +7,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MailNotify;
-
+use Exception;
 /* Model Import */
 Use App\Model\User;
 Use App\Model\FixedCost;
 Use App\Model\DailyCost;
 Use App\Model\Category;
 Use App\Model\Installment;
+Use App\Model\InstallmentDetail;
 
 class AdminController extends Controller
 {
@@ -38,6 +39,8 @@ class AdminController extends Controller
     public function getAddDailyCostView($together) {
         $this->data['users'] = User::all();
         $this->data['categories'] = Category::all();
+        $this->data['installments'] = Installment::with(['detail'])->get();
+        // $this->data['ins_details'] = InstallmentDetail::all();
         $this->data['together'] = $together;
         return view('pages.admin.add_daily_cost')->with($this->data);
     }
@@ -88,6 +91,24 @@ class AdminController extends Controller
             }
     
             $daily->save();
+
+            if($re->ins_detail_id) {
+                // $insDetail = InstallmentDetail::with(['installment'])->where('id',$re->ins_detail_id)->get();
+                $insDetail = InstallmentDetail::find($re->ins_detail_id);
+                $insDetail->status = 1;
+                
+    
+                $installment = Installment::find($insDetail->installment_id);
+                if ($installment->waiting_amout != 0) {
+                    $installment->waiting_amout = $installment->waiting_amout - $insDetail->trans_amout;
+                } else {
+                    $installment->waiting_amout = $installment->trans_amout - $insDetail->trans_amout;
+                }
+                
+                $insDetail->save();
+                $installment->save();
+            }
+            
             DB::commit();
             return redirect()->back()->with('success','Thêm thành công!');
         } catch (Exception $ex) {
@@ -281,7 +302,8 @@ class AdminController extends Controller
         // Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt', $totalTwo));
     }
 
-    public function getInstallmentList() {$this->data['installments'] = Installment::where('payer', Auth::user()->id)->get();
+    public function getInstallmentList() {
+        $this->data['installments'] = Installment::where('payer', Auth::user()->id)->get();
         return view('pages.admin.installment_list')->with($this->data);
     }
 
@@ -291,6 +313,7 @@ class AdminController extends Controller
 
     public function AddInstallmentList(Request $re) {
         try {
+
             DB::beginTransaction();
             $installment = new Installment;
             $installment->details = $re->details;
@@ -301,22 +324,49 @@ class AdminController extends Controller
             $installment->due_date = $re->due_date;
             $installment->cycle = $re->cycle;
             $installment->payer = Auth::user()->id;
-
             $installment->save();
+
+            $arr_date = [];
+            $temp_date = $re->start_date;
+            for($index = 0; $index < $re->cycle; $index++){
+                array_push($arr_date, $temp_date);
+                $temp_date =  date('Y-m-d', strtotime("+1 months", strtotime($temp_date)));
+            }
+
+            forEach($arr_date as $date) {
+                $ins_detail = new InstallmentDetail;
+                $ins_detail->installment_id = $installment->id;
+                $ins_detail->pay_date = $date;
+                $ins_detail->trans_amout = $re->trans_amount/$re->cycle;
+                $ins_detail->status = 0;
+                $ins_detail->payer = Auth::user()->id;
+                $ins_detail->save();
+            }
+
+            
             DB::commit();
             return redirect()->back()->with('success','Thêm thành công!');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error','Thêm Thất bại!');
+            return redirect()->back()->with('error',$ex->getMessage());
         }
     }
 
 
     public function InstallmentDetail($id) {
-        $details = Installment::find($id);
+        $installment = Installment::find($id);
+        $details = InstallmentDetail::where('installment_id',$id)->get();
+        
+        $this->data['installment'] = $installment;
         $this->data['ins_detail'] = $details;
-        $this->data['cost_per_month'] = round($details->trans_amout / $details->cycle, 2);
+        $this->data['cost_per_month'] = round($installment->trans_amout / $installment->cycle, 2);
+        // return $this->data;
         return view('pages.admin.installment_detail')->with($this->data);
+    }
+
+    public function AjaxInstallmentDetail(Request $re) {
+        $ins_detail = InstallmentDetail::where('installment_id', $re->id)->get();
+        return response()->json(['detail'=>$ins_detail]);
     }
 
 }

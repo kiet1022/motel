@@ -74,7 +74,8 @@
                         <div class="col-lg-6 form-group">
                             <label for="cycle">Số tháng góp</label>
                             <select id="cycle" class="form-control" name="cycle">
-                                <option value="3" selected>3 Tháng</option>
+                                <option value="" selected>Chọn kỳ hạn</option>
+                                <option value="3">3 Tháng</option>
                                 <option value="6">6 Tháng</option>
                                 <option value="9">9 Tháng</option>
                                 <option value="12">12 Tháng</option>
@@ -83,12 +84,12 @@
 
                         <div class="col-lg-6 form-group">
                             <label for="start_date">Ngày bắt đầu góp</label>
-                            <input type="date" id="start_date" class="form-control" name="start_date" required>
+                            <input type="date" id="start_date" class="form-control" name="start_date" required disabled>
                         </div>
 
                         <div class="col-lg-6 form-group">
                             <label for="due_date">Ngày kết thúc góp</label>
-                            <input type="date" id="due_date" class="form-control" name="due_date" required>
+                            <input type="date" id="due_date" class="form-control" name="due_date" required disabled>
                         </div>
 
                         <div class="col-lg-12 text-center mt-3">
@@ -113,8 +114,8 @@
         blockUI(false);
         // Get current day
         var now = moment().format('YYYY-MM-DD');
-        $('#start_date').val(now);
-        $('#due_date').val(now);
+        // $('#start_date').val(now);
+        // $('#due_date').val(now);
         $('#trans_date').val(now);
         
         // Format currency
@@ -123,6 +124,35 @@
             $('#trans_amount_value').val($('#trans_amount').val());
         });
 
+        $('#cycle').change(function(){
+            if ($(this).val() != "") {
+                $('#start_date').removeAttr('disabled');
+                $('#start_date').val('');
+                $('#due_date').val('');
+            } else {
+                $('#start_date').attr('disabled',true);
+                $('#due_date').attr('disabled',true);
+            }
+            
+        });
+
+        $('#start_date').change(function() {
+            var startDate = moment($(this).val());
+            var dueDate = startDate.add($('#cycle').val() - 1, 'M').format('YYYY-MM-DD');
+            $('#due_date').val(dueDate);
+            $('#due_date').removeAttr('disabled');
+            
+            
+        })
+
+        $('#due_date').change(function() {
+            var dueDate  = moment($(this).val());
+            var startDate = dueDate.subtract($('#cycle').val() - 1, 'M').format('YYYY-MM-DD');
+            $('#start_date').val(startDate);
+            $('#start_date').removeAttr('disabled');
+            
+            
+        })
         // Block UI when submit form
         $('#btn-submit').on('click', function(e){
             blockUI(true);

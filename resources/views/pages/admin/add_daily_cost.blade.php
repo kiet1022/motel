@@ -114,6 +114,23 @@
                             </select>
                         </div>
 
+                        <div class="col-lg-6 form-group installment d-none">
+                            <label for="installment">Danh mục trả góp</label>
+                            <select id="installment" class="form-control">
+                                <option disabled selected>Chọn danh mục</option>
+                                @foreach ($installments as $ins)
+                                <option value="{{ $ins->id }}">
+                                    {{ $ins->details }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-6 form-group installment-detail d-none">
+                            <label for="installment-detail">Chọn kỳ thanh toán</label>
+                            <select id="installment-detail" class="form-control" name="ins_detail_id"></select>
+                        </div>
+
                         <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
                             <label for="percent_per_one">Chia (%) Kiệt </label>
                             <input type="text" id="percent_per_one" name="percent_per_one" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="50" required>
@@ -183,14 +200,74 @@
                 // $('.lbl-name').html('Chi tiêu chung');
                 $('#percent_per_one').prop('disabled', false);
                 $('#percent_per_two').prop('disabled', false);
+                $('.installment-detail').addClass('d-none');
+                $('.installment').addClass('d-none');
             } else {
                 $('.percent').addClass('d-none');
                 $('.category').removeClass('d-none');
                 // $('.lbl-name').html('Chi tiêu cá nhân');
                 $('#percent_per_one').prop('disabled', true);
                 $('#percent_per_two').prop('disabled', true);
+
+                if ($('#category').val() == "6") {
+                    if($('#installment').val() != "") {
+                        $('.installment-detail').removeClass('d-none');
+                        $('.installment').removeClass('d-none');
+                    } else {
+                        $('.installment').removeClass('d-none');
+                    }
+                }
             }
         });
+
+        $('#category').change(function() {
+            if($(this).val() == "6") {
+                $('.installment').removeClass('d-none')
+            } else {
+                $('.installment').addClass('d-none');
+                $('.installment-detail').addClass('d-none');
+            }
+        })
+        $('#installment').change(function() {
+            var id = $(this).val();
+            var url_detail = "{{ route('ajax-installment_details')}}";
+            $.ajax({
+                url: url_detail,
+                method: 'post',
+                data: {
+                    id: id
+                }
+            }).done(function(data) {
+                genInsDetailBlock(data.detail);
+            }).fail(function(xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            })
+            
+        })
+
+        function genInsDetailBlock(detail) {
+            html = '';
+            for (var i = 0; i < detail.length; i++) {
+                if (detail[i].status != 1) {
+                    var thisMonthSystem = moment(now).get('month');
+                    var thisMonth = moment(detail[i].pay_date).get('month');
+                    if(thisMonth > thisMonthSystem) {
+                        html += '<option value="' + detail[i].id + '" disabled>'+ moment(detail[i].pay_date).format('DD/MM/YYYY')+' - '+ numberFormat(detail[i].trans_amout)+' - '+'<span class="text-danger">Chưa đến hạn</span></option>'
+                    } else {
+                        html += '<option value="' + detail[i].id + '">'+ moment(detail[i].pay_date).format('DD/MM/YYYY')+' - '+ numberFormat(detail[i].trans_amout)+'</option>'
+                    }
+                }
+            }
+
+            $('#installment-detail').html(html);
+            $('.installment-detail').removeClass('d-none');
+        }
+
+        function numberFormat(number){
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        }
         // Block UI when submit form
         $('#btn-submit').on('click', function(e){
             blockUI(true);

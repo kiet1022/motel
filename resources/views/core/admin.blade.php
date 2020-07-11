@@ -98,6 +98,13 @@
 
                 <!-- Custom scripts for all pages-->
                 <script src="{{ asset('js/common.js') }}"></script>
+                <script>
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                </script>
                 @yield('js')
                 <!-- Page level plugins -->
                 {{-- <script src="{{ asset('vendor/chart.js/Chart.min.js') }}"></script> --}}

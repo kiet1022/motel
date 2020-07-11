@@ -200,13 +200,13 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{{ $ins_detail->details}}</td>
-                                                <td>{{ showDateInDMY($ins_detail->trans_date) }}</td>
-                                                <td>{{ number_format($ins_detail->trans_amout)}} ₫</td>
-                                                <td>{{ $ins_detail->cycle}} Tháng</td>
-                                                <td>{{ showDateInDMY($ins_detail->start_date) }} - {{ showDateInDMY($ins_detail->due_date)}}</td>
-                                                <td>{{ number_format($ins_detail->trans_amout - $ins_detail->waiting_amout)}} ₫</td>
-                                                <td>{{ number_format($ins_detail->waiting_amout)}} ₫</td>
+                                                <td>{{ $installment->details}}</td>
+                                                <td>{{ showDateInDMY($installment->trans_date) }}</td>
+                                                <td>{{ number_format($installment->trans_amout)}} ₫</td>
+                                                <td>{{ $installment->cycle}} Tháng</td>
+                                                <td>{{ showDateInDMY($installment->start_date) }} - {{ showDateInDMY($installment->due_date)}}</td>
+                                                <td>{{ number_format($installment->trans_amout - $installment->waiting_amout)}} ₫</td>
+                                                <td>{{ number_format($installment->waiting_amout)}} ₫</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -219,18 +219,20 @@
                                                 <th>Lần trả</th>
                                                 <th>Ngày trả</th>
                                                 <th>Số tiền</th>
+                                                <th>Trạng thái</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @for($i = 1; $i <= $ins_detail->cycle; $i++)
+                                            @foreach ($ins_detail as $index => $detail)
                                             <tr>
-                                                <td>Lần {{ $i}}</td>
-                                                <td>{{ showDateInDMY($ins_detail->trans_date) }}</td>
+                                                <td>Lần {{ $index + 1}}</td>
+                                                <td>{{ showDateInDMY($detail->pay_date) }}</td>
                                                 <td>{{ number_format($cost_per_month)}} ₫</td>
+                                                <td class="text-center">{!! showInstallmentStatus($detail->status) !!}</td>
                                                 <td></td>
                                             </tr>
-                                            @endfor
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>

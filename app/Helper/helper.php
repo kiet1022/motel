@@ -35,4 +35,14 @@
             return date("d/m/Y", strtotime($date));
         }
     }
+
+    if (! function_exists('showInstallmentStatus')) {
+        function showInstallmentStatus($status){
+            $result = '<span class="badge badge-danger">Chưa thanh toán</span>';
+
+            $result = $status == 1 ? '<span class="badge badge-success">Đã thanh toán</span>' : $result;
+            
+            return $result;
+        }
+    }
 ?>
