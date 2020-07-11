@@ -224,7 +224,7 @@ class AdminController extends Controller
 
     public function getMonthlyCostView($month = 6, $year = 2020) {
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and deleted_at is null and daily_costs.is_together = 1'))
+                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and deleted_at is null and daily_costs.is_together = 0'))
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
@@ -233,7 +233,7 @@ class AdminController extends Controller
         // return $this->data['costs'];
         $this->data['month'] = $month;
         $this->data['year'] = $year;
-        $this->data['together'] = config('constants.COST_TYPE.TOGETHER');
+        $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
         $this->data['users'] = User::all();
         // return $this->data;
         return view('pages.admin.monthly_cost_view')->with($this->data);

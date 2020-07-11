@@ -420,7 +420,7 @@
             html += '<td>'+element.percent_per_two+'%</td>';
             html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_two)+'</td>';
             if (element.image != null) {
-                html += '<td><a class="btn btn-primary btn-sm" href="../img/'+element.image+'" target="_blank">Xem</a></td>';
+                html += '<td><a class="btn btn-primary btn-sm" href="../../../img/'+element.image+'" target="_blank">Xem</a></td>';
             } else {
                 html += '<td></td>';
             }
