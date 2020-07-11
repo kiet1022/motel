@@ -352,7 +352,6 @@ class AdminController extends Controller
         }
     }
 
-
     public function InstallmentDetail($id) {
         $installment = Installment::find($id);
         $details = InstallmentDetail::where('installment_id',$id)->get();
