@@ -12,19 +12,21 @@ class MailNotify extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $costs;
-    public $name;
     public $total;
+    public $ele_cost_name;
+    public $ele_cost_value;
+    public $name;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($data, $name, $total)
+    public function __construct($data, $name)
     {
-        $this->costs = $data['costs'];
+        $this->total = $data['total'];
+        $this->ele_cost_name = $data['ele_cost_name'];
+        $this->ele_cost_value = $data['ele_cost_value'];
         $this->name = $name;
-        $this->total = $total;
     }
 
     /**

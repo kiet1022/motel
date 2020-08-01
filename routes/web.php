@@ -32,6 +32,9 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('addDailyCost/{together}','AdminController@getAddDailyCostView')->name('get_add_daily_cost_view');
     Route::post('addDailyCost','AdminController@addDailyCost')->name('post_add_daily_cost');
 
+    Route::get('addFixedCost','AdminController@getAddFixedCostView')->name('get_add_fixed_cost_view');
+    Route::post('addFixedCost','AdminController@AddFixedCost')->name('add_fixed_cost');
+
     Route::get('editDailyCost/{id}/{together}','AdminController@getEditDailyCostView')->name('get_edit_daily_cost_view');
     Route::post('editDailyCost/{id}','AdminController@editDailyCost')->name('post_edit_daily_cost');
 

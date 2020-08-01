@@ -255,6 +255,25 @@
                                 @endphp
                                 <!-- Card Body -->
                                 <div class="card-body table-responsive">
+
+                                    @if(session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ session('error') }}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>            
+                                    @endif
+                                    
+                                    @if(session('success'))
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        {{ session('success') }}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>            
+                                    @endif
+
                                     <div id="tb-total-mobile" class="row mb-3">
                                         <div class="col-12 border text-center" style="font-weight: bold">
                                             <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($totalShow) }} ₫</span>
@@ -303,7 +322,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    <a href="{{ route('send_mail')}}" class="btn btn-primary"><i class="fas fa-envelope"></i> Gửi Mail</a>
+                                    <a id="send-mail" href="{{ route('send_mail')}}" class="btn btn-primary"><i class="fas fa-envelope"></i> Gửi Mail</a>
                                     <div id="tb-total">
                                         <table class="table table-hover tabel-stripped table-bordered mt-3">
                                             <tfoot>
@@ -355,6 +374,9 @@
             { "width": "10%", "targets": 0 }]
         });
         
+        $('#send-mail').click(function() {
+            blockUI(true);
+        })
         $(document).ready(function(){
             blockUI(false);
             

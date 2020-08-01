@@ -14,66 +14,30 @@
     <link href="{{ asset('css/common.css') }}" rel="stylesheet">
 </head>
 <body>
-    {{-- <table id="table1" class="table table-hover tabel-stripped table-bordered">
-        <thead class="thead-light">
-            <tr>
-                <th>Ngày chi</th>
-                <th>Lý do chi</th>
-                <th>Số tiền đã chi</th>
-                <th>Người chi</th>
-                <th>Phần trăm (Kiệt)</th>
-                <th>Thực chi (Kiệt)</th>
-                <th>Phần trăm (Thạch)</th>
-                <th>Thực chi (Thạch)</th>
-                <th>Hóa đơn</th>
-            </tr>
-        </thead>
-        
-        <tbody>
-            @foreach ($costs as $cost)
-            @if ($cost->percent_per_one > 0 && $cost->percent_per_two > 0)                                                
-            <tr>
-                <td>{{ date("d/m/Y", strtotime($cost->date)) }}</td>
-                <td>{{ $cost->payfor }}</td>
-                <td>{{ number_format($cost->total) }} ₫</td>
-                <td>{{ $cost->name }}</td>
-                <td>{{ $cost->percent_per_one }} %</td>
-                <td style="font-weight: bold;" class="text-danger"> {{ number_format($cost->total_per_one) }} ₫</td>
-                <td>{{ $cost->percent_per_two }} %</td>
-                <td style="font-weight: bold;" class="text-danger"> {{ number_format($cost->total_per_two) }} ₫</td>
-                <td>
-                    @if (isset($cost->image))
-                        <a class="btn btn-primary btn-sm" href="{{ asset('img/'.$cost->image) }}" target="_blank">Xem</a>
-                    @endif
-                </td>
-            </tr>
-            @endif
-            @endforeach
-        </tbody>
-    </table> --}}
-
-
 @component('mail::message')
-<p> Hi {{$name}} </p>
-<p> Thông báo về chi tiêu tháng {{ date("m") }}</p>
+<p> Hi {{$name}} !</p>
+<p> Thông báo về chi tiêu tháng {{ date("m") - 1 }}</p>
 <ul>
-    <li>Tiền Phòng: <span class="red">1.300.000 vnđ</span></li>
-    <li>Tiền nước: <span class="red">50.000 vnđ</span></li>
-    <li>Tiền rác: <span class="red">12.500 vnđ</span> </li>
-    <li>Chi tiêu khác: <span class="red">{{ number_format($total - (1300000+12500+50000))}} vnđ</span></li>
+    <li>Tiền phòng: <span class="red">1,300,000 vnđ</span></li>
+    <li>Tiền nước: <span class="red">50,000 vnđ</span></li>
+    <li>Tiền rác: <span class="red">12,500 vnđ</span> </li>
+    <li>{{ $ele_cost_name }}: <span class="red">{{ number_format($ele_cost_value) }} vnđ</span> </li>
+    <li>Chi tiêu khác: <span class="red">{{ number_format($total - (1300000+12500+50000+$ele_cost_value))}} vnđ</span></li>
 </ul>
-<h2 class="red">Tổng: {{ number_format($total)}} vnđ</h2>
+<h1 class="red">Tổng: {{ number_format($total)}} vnđ</h1>
  @component('mail::panel')
  Phương thức thanh toán: <br>
- <h2>Chuyển Khoản</h2>
- <p>STK: 04401015969818</p>
- <p>CTK: Dương Tuấn Kiệt</p>
- <p>Ngân hàng TMCP Hàng Hải Việt Nam (Maritime Bank)</p>
- <h2>Momo</h2>
- <p>SDT: 0346356275</p>
+ <ul>
+    <li><h2><u>Chuyển Khoản</u></h2></li>
+    <p>Ngân hàng TMCP Hàng Hải Việt Nam (Maritime Bank)</p>
+    <p>STK: 04401015969818</p>
+    <p>CTK: Dương Tuấn Kiệt</p>
+    <li><h2><u>Momo</u></h2></li>
+ </ul>
+ <img style="width: 100%" src="http://kietkun.xyz/public/img/momo-info.jpg" alt="" srcset="">
  <br>
- <img style="width: 5%" src="https://lh3.googleusercontent.com/MBMltTFMkP0uV2dmS2BopLdtokWLI1Qs6lI69wYzixldD4hqr93xTAJFvrw5f_I2mQ" alt="" srcset="">
- <img style="width: 5%" src="https://static.mservice.io/img/logo-momo.png" alt="" srcset="">
+ <img style="width: 5%" src="http://kietkun.xyz/public/img/msb.png" alt="" srcset="">
+ <img style="width: 5%" src="http://kietkun.xyz/public/img/momo.png" alt="" srcset="">
 @endcomponent
  Trân trọng.
 @endcomponent

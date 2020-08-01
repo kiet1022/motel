@@ -80,7 +80,6 @@ class AdminController extends Controller
 
             if($re->hasFile('image')){
                 $file = $re->file('image');
-                $duoi = $file->getClientOriginalExtension();
                 $name = $file->getClientOriginalName();
                 $img = str_random(4)."_".$name;
                 while (file_exists("img/".$img)) {
@@ -202,6 +201,85 @@ class AdminController extends Controller
         }
     }
 
+    public function getAddFixedCostView(){
+        $this->data['month'] = date('m');
+        return view('pages.admin.add_fixed_cost')->with($this->data);
+    }
+
+    public function AddFixedCost(Request $re) {
+        try {
+            DB::beginTransaction();
+            // Room fee
+            $roomfee = new DailyCost;
+            $roomfee->payfor = "Tiền phòng";
+            $roomfee->payer = Auth::user()->id;
+            $roomfee->date = $re->date;
+            $roomfee->total = $re->room_fee;
+            $roomfee->percent_per_one = 50;
+            $roomfee->percent_per_two = 50;
+            $roomfee->total_per_one = $re->room_fee / 2;
+            $roomfee->total_per_two = $re->room_fee / 2;
+            $roomfee->is_together = 1;
+
+            if($re->hasFile('image')){
+                $file = $re->file('image');
+                $name = $file->getClientOriginalName();
+                $img = str_random(4)."_".$name;
+                while (file_exists("img/".$img)) {
+                $img = str_random(4)."_".$name;
+                }
+                $file->move("img",$img);
+                $roomfee->image = $img;
+            }
+            $roomfee->save();
+
+            // water fee
+            $waterfee = new DailyCost;
+            $waterfee->payfor = "Tiền nước";
+            $waterfee->payer = Auth::user()->id;
+            $waterfee->date = $re->date;
+            $waterfee->total = $re->water_fee;
+            $waterfee->percent_per_one = 50;
+            $waterfee->percent_per_two = 50;
+            $waterfee->total_per_one = $re->water_fee / 2;
+            $waterfee->total_per_two = $re->water_fee / 2;
+            $waterfee->is_together = 1;
+            $waterfee->save();
+
+            // trash fee
+            $trashfee = new DailyCost;
+            $trashfee->payfor = "Tiền rác";
+            $trashfee->payer = Auth::user()->id;
+            $trashfee->date = $re->date;
+            $trashfee->total = $re->trash_fee;
+            $trashfee->percent_per_one = 50;
+            $trashfee->percent_per_two = 50;
+            $trashfee->total_per_one = $re->trash_fee / 2;
+            $trashfee->total_per_two = $re->trash_fee / 2;
+            $trashfee->is_together = 1;
+            $trashfee->save();
+
+            // ele fee
+            $elefee = new DailyCost;
+            $elefee->payfor = "Tiền điện ($re->ele_num ký)";
+            $elefee->payer = Auth::user()->id;
+            $elefee->date = $re->date;
+            $elefee->total = $re->ele_fee;
+            $elefee->percent_per_one = 50;
+            $elefee->percent_per_two = 50;
+            $elefee->total_per_one = $re->ele_fee / 2;
+            $elefee->total_per_two = $re->ele_fee / 2;
+            $elefee->is_together = 1;
+            $elefee->save();
+
+            DB::commit();
+            return redirect()->back()->with('success','Thêm thành công!');
+        } catch (Exception $ex) {
+            DB::rollback();
+            return redirect()->back()->with('error','Thêm Thất bại!');
+        }
+    }
+
     public function personalDailyCost() {
         $this->data['month'] = date('m');
         $this->data['year'] = date('Y');
@@ -224,7 +302,7 @@ class AdminController extends Controller
 
     public function getMonthlyCostView($month = 6, $year = 2020) {
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and deleted_at is null and daily_costs.is_together = 0'))
+                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and payer = '.Auth::user()->id.' and deleted_at is null and daily_costs.is_together = 0'))
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
@@ -282,24 +360,31 @@ class AdminController extends Controller
     }
 
     public function sendMail() {
+        try {
+        $month = date('m') - 1;
+
         $costs = DB::table('daily_costs')
-        ->whereRaw(DB::raw('MONTH(date) = 4 and YEAR(date) = '.date('Y').' and deleted_at is null'))
+        ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
         ->join('users','daily_costs.payer','=','users.id')
         ->selectRaw('sum(daily_costs.total_per_one) AS total_per_one, sum(daily_costs.total_per_two) AS total_per_two')
         ->get();
 
-        $totalOne = 0;
-        $totalTwo = 0;
-        foreach ($costs as $cost) {
-            $totalOne += $cost->total_per_one;
-            $totalTwo += $cost->total_per_two;
-        }
+        $ele_cost = DB::table('daily_costs')
+        ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
+        ->select(['total','payfor'])->where('daily_costs.payfor','like','%điện%')->get();
 
         $data = array(
-            'costs' => $costs,
+            'total' => $costs[0]->total_per_two,
+            'ele_cost_name' => $ele_cost[0]->payfor,
+            'ele_cost_value' => $ele_cost[0]->total
         );
-        Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt', $totalOne));
-        // Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt', $totalTwo));
+
+        Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt'));
+        Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
+        return redirect()->back()->with('success','Gửi mail thành công!');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error',$e->getMessage());
+        }
     }
 
     public function getInstallmentList() {

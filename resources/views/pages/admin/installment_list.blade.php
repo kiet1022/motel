@@ -75,15 +75,15 @@
         /*
         Label the data
         */
-        td:nth-of-type(1):before { content: "Ngày chi:"; font-weight: bold;}
-        td:nth-of-type(2):before { content: "Lý do chi:"; font-weight: bold;}
-        td:nth-of-type(3):before { content: "Đã chi:"; font-weight: bold;}
-        td:nth-of-type(4):before { content: "Người chi:"; font-weight: bold;}
-        td:nth-of-type(5):before { content: "Phần trăm:"; font-weight: bold;}
-        td:nth-of-type(6):before { content: "Thực chi:"; font-weight: bold;}
-        td:nth-of-type(7):before { content: "Hóa đơn:"; font-weight: bold;}
+        td:nth-of-type(1):before { content: "Nội dung:"; font-weight: bold;}
+        td:nth-of-type(2):before { content: "Ngày giao dịch:"; font-weight: bold;}
+        td:nth-of-type(3):before { content: "Số tiền:"; font-weight: bold;}
+        td:nth-of-type(4):before { content: "Kỳ trả góp:"; font-weight: bold;}
+        td:nth-of-type(5):before { content: "Bắt đầu - kết thúc:"; font-weight: bold;}
+        td:nth-of-type(6):before { content: "Đã trả:"; font-weight: bold;}
+        td:nth-of-type(7):before { content: "Còn lại:"; font-weight: bold;}
         td:nth-of-type(7) { text-align: unset; }
-        td:nth-of-type(8):before { content: "";}
+        td:nth-of-type(8):before { content: "Chi tiết:"; font-weight: bold;}
     }
 </style>
 @endsection
@@ -155,8 +155,8 @@
                                                 <td>{{ number_format($installment->trans_amout)}} ₫</td>
                                                 <td>{{ $installment->cycle}} Tháng</td>
                                                 <td>{{ showDateInDMY($installment->start_date) }} - {{ showDateInDMY($installment->due_date)}}</td>
-                                                <td>{{ number_format($installment->trans_amout - $installment->waiting_amout)}} ₫</td>
-                                                <td>{{ number_format($installment->waiting_amout)}} ₫</td>
+                                                <td><span class="text-success">{{ number_format($installment->trans_amout - $installment->waiting_amout)}} ₫</span></td>
+                                                <td><span class="text-danger">{{ number_format($installment->waiting_amout)}} ₫</span></td>
                                                 <td><a href="{{ route('installment_details',['id' => $installment->id])}}" class="btn btn-primary btn-sm">Xem</a></td>
                                             </tr>
                                             @endforeach

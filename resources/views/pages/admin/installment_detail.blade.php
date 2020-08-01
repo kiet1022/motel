@@ -73,17 +73,26 @@
         }
         
         /*
-        Label the data
+        Label the data of table 1
         */
-        td:nth-of-type(1):before { content: "Ngày chi:"; font-weight: bold;}
-        td:nth-of-type(2):before { content: "Lý do chi:"; font-weight: bold;}
-        td:nth-of-type(3):before { content: "Đã chi:"; font-weight: bold;}
-        td:nth-of-type(4):before { content: "Người chi:"; font-weight: bold;}
-        td:nth-of-type(5):before { content: "Phần trăm:"; font-weight: bold;}
-        td:nth-of-type(6):before { content: "Thực chi:"; font-weight: bold;}
-        td:nth-of-type(7):before { content: "Hóa đơn:"; font-weight: bold;}
-        td:nth-of-type(7) { text-align: unset; }
-        td:nth-of-type(8):before { content: "";}
+        #table1 td:nth-of-type(1):before { content: "Nội dung:"; font-weight: bold;}
+        #table1 td:nth-of-type(2):before { content: "Ngày giao dịch:"; font-weight: bold;}
+        #table1 td:nth-of-type(3):before { content: "Số tiền:"; font-weight: bold;}
+        #table1 td:nth-of-type(4):before { content: "Kỳ trả góp:"; font-weight: bold;}
+        #table1 td:nth-of-type(5):before { content: "Bắt đầu - kết thúc:"; font-weight: bold;}
+        #table1 td:nth-of-type(6):before { content: "Đã trả:"; font-weight: bold;}
+        #table1 td:nth-of-type(7):before { content: "Còn lại:"; font-weight: bold;}
+        #table1 td:nth-of-type(7) { text-align: unset; }
+        /* td:nth-of-type(8):before { content: "Chi tiết:"; font-weight: bold;} */
+
+         /*
+        Label the data of table 2
+        */
+        #table2 td:nth-of-type(1):before { content: "Lần trả:"; font-weight: bold;}
+        #table2 td:nth-of-type(2):before { content: "Ngày trả:"; font-weight: bold;}
+        #table2 td:nth-of-type(3):before { content: "Số tiền:"; font-weight: bold;}
+        #table2 td:nth-of-type(4):before { content: "Trạng thái:"; font-weight: bold;}
+        #table2 td:nth-of-type(4) { text-align: unset !important; }
     }
 </style>
 @endsection
@@ -93,59 +102,6 @@
                 <div class="container-fluid">
                     
                     <div class="row">
-                        
-                        <!-- Area Chart -->
-                        <div class="col-xl-12 col-lg-12">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    {{-- <h6 class="m-0 font-weight-bold text-primary">Chi tiêu tháng {{ $month }}/{{ $year }}</h6> --}}
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body table-responsive">
-                                    {{-- <form action="{{ route('filter_daily_cost') }}" method="POST">
-                                        @csrf
-                                        <div class="form-row">
-                                            <div class="col-lg-2 col-md-2 col-xs-0 form-group"></div>
-                                            <div class="col-lg-4 col-md-4 col-xs-12 form-group">
-                                                <label for="year">Chọn năm: </label>
-                                                <select id="my-select" class="form-control" name="year">
-                                                    @for ($i = 2020; $i <= 2025; $i++)
-                                                        <option value="{{ $i }}" @if ($i == $year) {{ "selected" }} @endif>Năm {{ $i }}</option>
-                                                    @endfor
-                                                </select>
-                                            </div>
-    
-                                            <div class="col-lg-4 col-md-4 col-xs-12 form-group">
-                                                <label for="my-select">Chọn tháng: </label>
-                                                <select id="my-select" class="form-control" name="month">
-                                                    @for ($i = 1; $i <= 12; $i++)
-                                                        <option value="{{ $i }}" @if ($i == $month) {{ "selected" }} @endif>Tháng {{ $i }}</option>
-                                                    @endfor
-                                                </select>
-                                            </div>
-                                            <input type="hidden" name="together" value="{{$together}}" >
-                                        </div>
-
-                                        <div class="text-center">
-                                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Lọc</button><br>
-                                        </div>
-                                    </form> --}}
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Area Chart -->
                         <div class="col-xl-12 col-lg-12">
@@ -213,14 +169,13 @@
                                     
                                     <hr>
 
-                                    <table id="table" class="table table-stripped table-bordered">
+                                    <table id="table2" class="table table-stripped table-bordered table-hover">
                                         <thead class="thead-light">
                                             <tr>
                                                 <th>Lần trả</th>
                                                 <th>Ngày trả</th>
                                                 <th>Số tiền</th>
                                                 <th>Trạng thái</th>
-                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -230,7 +185,6 @@
                                                 <td>{{ showDateInDMY($detail->pay_date) }}</td>
                                                 <td>{{ number_format($cost_per_month)}} ₫</td>
                                                 <td class="text-center">{!! showInstallmentStatus($detail->status) !!}</td>
-                                                <td></td>
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -249,9 +203,13 @@
     <script>
         $(document).ready(function(){
             blockUI(false);
-            $('#table').DataTable({
-                // "order": [0, 'desc']
-            });
+            // $('#table').DataTable({
+            //     // "order": [0, 'desc']
+            //     columnDefs: [ {
+            //     orderable: false,
+            //     targets:   0,
+            // }],
+            // });
 
             $('.delete').click(function(){
                 blockUI(true);
