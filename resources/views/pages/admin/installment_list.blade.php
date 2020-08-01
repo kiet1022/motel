@@ -1,5 +1,5 @@
 @extends('core.admin')
-@section('title', 'Chi tiêu chung')
+@section('title', 'Trả góp')
 @section('css')
 <style>
         .btn-danger {
@@ -93,66 +93,13 @@
                 <div class="container-fluid">
                     
                     <div class="row">
-                        
-                        <!-- Area Chart -->
-                        <div class="col-xl-12 col-lg-12">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    {{-- <h6 class="m-0 font-weight-bold text-primary">Chi tiêu tháng {{ $month }}/{{ $year }}</h6> --}}
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                            <div class="dropdown-header">Dropdown Header:</div>
-                                            <a class="dropdown-item" href="#">Action</a>
-                                            <a class="dropdown-item" href="#">Another action</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body table-responsive">
-                                    {{-- <form action="{{ route('filter_daily_cost') }}" method="POST">
-                                        @csrf
-                                        <div class="form-row">
-                                            <div class="col-lg-2 col-md-2 col-xs-0 form-group"></div>
-                                            <div class="col-lg-4 col-md-4 col-xs-12 form-group">
-                                                <label for="year">Chọn năm: </label>
-                                                <select id="my-select" class="form-control" name="year">
-                                                    @for ($i = 2020; $i <= 2025; $i++)
-                                                        <option value="{{ $i }}" @if ($i == $year) {{ "selected" }} @endif>Năm {{ $i }}</option>
-                                                    @endfor
-                                                </select>
-                                            </div>
-    
-                                            <div class="col-lg-4 col-md-4 col-xs-12 form-group">
-                                                <label for="my-select">Chọn tháng: </label>
-                                                <select id="my-select" class="form-control" name="month">
-                                                    @for ($i = 1; $i <= 12; $i++)
-                                                        <option value="{{ $i }}" @if ($i == $month) {{ "selected" }} @endif>Tháng {{ $i }}</option>
-                                                    @endfor
-                                                </select>
-                                            </div>
-                                            <input type="hidden" name="together" value="{{$together}}" >
-                                        </div>
-
-                                        <div class="text-center">
-                                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Lọc</button><br>
-                                        </div>
-                                    </form> --}}
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Area Chart -->
                         <div class="col-xl-12 col-lg-12">
                             <div class="card shadow mb-4">
                                 <!-- Card Header - Dropdown -->
                                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Quản lý chi tiêu hàng ngày</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Quản lý các khoản trả góp</h6>
                                     <div class="dropdown no-arrow">
                                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
