@@ -52,6 +52,14 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('installment-detail{id}','AdminController@InstallmentDetail')->name('installment_details');
 
     Route::post('ajax-installment-detail','AdminController@AjaxInstallmentDetail')->name('ajax-installment_details');
+
+    Route::get('statistical-{month}-{year}','AdminController@statistical')->name('statistical');
+    Route::post('statistical-filter','AdminController@filterStatistical')->name('filter_statiscal');
+
+    Route::get('statistical-compare','AdminController@statisticalCompare')->name('statistical-compare');
+    Route::post('statistical-compare-filter','AdminController@filterCompareStatistical')->name('filter_statiscal_compare');
+    
+
     
 });
 

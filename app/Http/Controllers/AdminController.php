@@ -453,4 +453,59 @@ class AdminController extends Controller
         return response()->json(['detail'=>$ins_detail]);
     }
 
+    public function statistical($month,$year) {
+        $this->data['statis'] = DB::table('daily_costs')
+        ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
+        ->whereRaw(DB::Raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and payer = '.Auth::user()->id.' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
+        ->join('categories','daily_costs.category','=','categories.id')
+        ->groupBy('categories.name')
+        ->get();
+
+        $this->data['month'] = $month;
+        $this->data['year'] = $year;
+        return view('pages.admin.statistical')->with($this->data);
+    }
+
+    public function filterStatistical(Request $re) {
+        $this->data['statis'] = DB::table('daily_costs')
+        ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
+        ->whereRaw(DB::Raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and payer = '.Auth::user()->id.' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
+        ->join('categories','daily_costs.category','=','categories.id')
+        ->groupBy('categories.name')
+        ->get();
+
+        $this->data['month'] = $re->month;
+        $this->data['year'] = $re->year;
+        return view('pages.admin.statistical')->with($this->data);
+    }
+
+    public function statisticalCompare(){
+        $this->data = $this->getStatisCompare(date('Y'), 1, date('m'));
+        return view('pages.admin.statistical-compare')->with($this->data);
+    }
+
+    public function filterCompareStatistical(Request $re) {
+        $this->data = $this->getStatisCompare($re->year, $re->month_from, $re->month_to);
+        return view('pages.admin.statistical-compare')->with($this->data);
+    }
+
+    private function getStatisCompare($year, $month_from, $month_to) {
+        $arr_data = [];
+        for($i = $month_from; $i <= $month_to; $i++) {
+            $statis = DB::table('daily_costs')
+            ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
+            ->whereRaw(DB::Raw('MONTH(date) = '.$i.' and YEAR(date) = '.$year.' and payer = '.Auth::user()->id.' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
+            ->join('categories','daily_costs.category','=','categories.id')
+            ->groupBy('categories.name')
+            ->get();
+            // $statis['month'] = $i;
+
+            array_push($arr_data, $statis);
+        }
+        $this->data['year'] = $year;
+        $this->data['month_from'] = $month_from;
+        $this->data['month_to'] = $month_to;
+        $this->data['arr_data'] = $arr_data;
+        return $this->data;
+    }
 }

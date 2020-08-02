@@ -134,8 +134,8 @@
         table#table1 td:nth-of-type(1):before { content: "Chi tiết:"; font-weight: bold;}
         table#table1 td:nth-of-type(2):before { content: "Ngày chi:"; font-weight: bold;}
         table#table1 td:nth-of-type(3):before { content: "Đã chi:"; font-weight: bold;}
-        table#table1 td:nth-of-type(4):before { content: "Chia:"; font-weight: bold;}
-        table#table1 td:nth-of-type(5):before { content: ""; font-weight: bold;}
+        table#table1 td:nth-of-type(4):before { content: "Kiệt:"; font-weight: bold;}
+        table#table1 td:nth-of-type(5):before { content: "Thạch:"; font-weight: bold;}
 
         /*
         Label of child table
@@ -291,7 +291,8 @@
                                                 <th>Chi tiết</th>
                                                 <th>Ngày chi</th>
                                                 <th>Số tiền đã chi</th>
-                                                <th>Chia đầu người</th>
+                                                <th>Kiệt</th>
+                                                <th>Thạch</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -313,7 +314,10 @@
                                                     @endphp
                                                 <td style="font-weight: bold;" class="text-danger">{{ number_format($total) }} ₫</td>
                                                 <td>
-                                                    <span style="font-weight: normal;" class="text-primary">Kiệt: {{number_format($ttOne)}} ₫ - Thạch: {{number_format($ttTwo)}} ₫</span>
+                                                    <span style="font-weight: normal;" class="text-primary">{{number_format($ttOne)}} ₫</span>
+                                                </td>
+                                                <td>
+                                                    <span style="font-weight: normal;" class="text-primary">{{number_format($ttTwo)}} ₫</span>
                                                 </td>
                                                 <td>                                            
                                                     {{ $cost }}
@@ -367,7 +371,7 @@
                 targets:   0,
             },
             {
-                "targets": [ 4 ],
+                "targets": [ 5 ],
                 "visible": false,
                 "searchable": false
             },
@@ -392,8 +396,7 @@
         $('#table1 tbody').on('click', 'td.details-control', function () {
             var tr = $(this).closest('tr');
             var row = table.row( tr );
-            var data = JSON.parse(row.data()[4]);
-            console.log(data);
+            var data = JSON.parse(row.data()[5]);
 
             if ( row.child.isShown() ) {
                 // This row is already open - close it

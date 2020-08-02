@@ -60,6 +60,20 @@
         </div>
     </li>
 
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Thống kê</span>
+        </a>
+        <div id="collapseFour" class="collapse" aria-labelledby="collapseFour" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="{{ route('statistical',['month'=>date('m'), 'year'=> date('Y')]) }}">Thống kê theo tháng</a>
+                <a class="collapse-item" href="{{ route('statistical-compare') }}">So sánh</a>
+                
+            </div>
+        </div>
+    </li>
+
     <!-- Nav Item - Utilities Collapse Menu -->
     {{-- <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">

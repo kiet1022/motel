@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <!-- Custom styles for this page -->
     <link href="{{ asset('vendor/datatables/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/chart-js/dist/Chart.min.css') }}" rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/common.css') }}" rel="stylesheet">
@@ -90,6 +91,9 @@
                 <!-- Data Tables -->
                 <script src="{{ asset('vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
                 <script src="{{ asset('vendor/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
+
+                <!-- Chart Js -->
+                <script src="{{ asset('vendor/chart-js/dist/Chart.min.js') }}"></script>
 
                 <!-- JQ Block UI-->
                 <script src="{{ asset('js/jquery.blockUI.js') }}"></script>
