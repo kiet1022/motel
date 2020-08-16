@@ -184,7 +184,7 @@
                                     <form action="{{ route('filter_monthly_cost') }}" method="POST">
                                         @csrf
                                         <div class="form-row">
-                                            <div class="col-lg-4 col-md-4 col-xs-12 form-group">
+                                            <div class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="year">Chọn năm: </label>
                                                 <select id="my-select" class="form-control" name="year">
                                                     @for ($i = 2020; $i <= 2025; $i++)
@@ -193,7 +193,7 @@
                                                 </select>
                                             </div>
     
-                                            <div class="col-lg-4 col-md-4 col-xs-12 form-group">
+                                            <div class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="my-select">Chọn tháng: </label>
                                                 <select id="my-select" class="form-control" name="month">
                                                     @for ($i = 1; $i <= 12; $i++)
@@ -202,7 +202,7 @@
                                                 </select>
                                             </div>
 
-                                            <div class="col-lg-4 col-md-4 col-xs-12 form-group">
+                                            <div class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="my-select">Loại chi tiêu: </label>
                                                 <select id="my-select" class="form-control" name="together">
                                                     <option value="1" 
@@ -212,16 +212,31 @@
                                                 </select>
                                             </div>
 
+                                            <div class="col-lg-3 col-md-3 col-xs-12 form-group">
+                                                <label for="keyword">Tìm kiếm chi tiêu: </label>
+                                                <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Nhập từ khoá" value="{{ old('keyword') }}">
+                                            </div>
+
                                         </div>
 
                                         <div class="text-center">
                                             <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Lọc</button>
                                         </div>
+                                        <hr>
+                                        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                                <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['together'=>$together]) }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
+                                            </div>
+                                            <div class="btn-group" role="group" aria-label="Third group">
+                                                <a class="btn btn-success btn-sm send-mail"  href="{{ route('send_mail')}}"><i class="fas fa-envelope"></i> Tổng kết tháng</a>
+                                            </div>
+                                        </div>
+                                        <div class="btn-group" role="group" aria-label="Basic example">
+                                        </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
-
                         <!-- Area Chart -->
                         <div class="col-xl-12 col-lg-12">
                             <div class="card shadow mb-4">
@@ -273,7 +288,6 @@
                                         </button>
                                     </div>            
                                     @endif
-
                                     <div id="tb-total-mobile" class="row mb-3">
                                         <div class="col-12 border text-center" style="font-weight: bold">
                                             <h4>Tổng tiền:</h4> <span class="text-danger">{{ number_format($totalShow) }} ₫</span>
@@ -326,7 +340,14 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    <a id="send-mail" href="{{ route('send_mail')}}" class="btn btn-primary"><i class="fas fa-envelope"></i> Gửi Mail</a>
+                                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                                            <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['together'=>$together]) }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
+                                        </div>
+                                        <div class="btn-group" role="group" aria-label="Third group">
+                                            <a class="btn btn-success btn-sm send-mail"  href="{{ route('send_mail')}}"><i class="fas fa-envelope"></i> Tổng kết tháng</a>
+                                        </div>
+                                    </div>
                                     <div id="tb-total">
                                         <table class="table table-hover tabel-stripped table-bordered mt-3">
                                             <tfoot>
@@ -378,7 +399,7 @@
             { "width": "10%", "targets": 0 }]
         });
         
-        $('#send-mail').click(function() {
+        $('.send-mail').click(function() {
             blockUI(true);
         })
         $(document).ready(function(){
@@ -430,12 +451,14 @@
             html += '<th>Thực chi (Kiệt)</th>';
             html += '<th>Phần trăm (Thạch)</th>';
             html += '<th>Thực chi (Thạch)</th>';
-            html += '<th>Hóa đơn</th></tr>';
+            html += '<th>Hóa đơn</th>';
+            html += '<th></th></tr>';
         html += '</tr>';                                     
         html += '</thead>';
         html += '<tbody>';
 
         data.forEach(element => {
+            console.log(element);
         html += '<tr>';
             html += '<td>'+element.payfor+'</td>';
             html += '<td>'+numberFormat(element.total)+'</td>';
@@ -449,6 +472,9 @@
             } else {
                 html += '<td></td>';
             }
+            html += '<td><a href="./editDailyCost/'+element.id+'/'+element.is_together+'" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>';
+            html += '&nbsp;&nbsp;'
+            html += '<a href="/deleteDailyCost/'+element.id+'" class="btn btn-sm btn-danger delete"><i class="fas fa-trash"></i></a></td>';
         html += '</tr>';
         });
         html += '</tbody>';

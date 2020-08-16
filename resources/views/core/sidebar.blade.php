@@ -39,15 +39,15 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 {{-- <h6 class="collapse-header">Chi phí cố đ</h6> --}}
                 <a class="collapse-item" href="{{ route('get_add_fixed_cost_view') }}">Chi phí cố định</a>
-                <a class="collapse-item" href="{{ route('get_daily_cost_view') }}">Chi tiêu chung</a>
-                <a class="collapse-item" href="{{ route('get_personal_daily_cost_view') }}">Chi tiêu cá nhân</a>
+                {{-- <a class="collapse-item" href="{{ route('get_daily_cost_view') }}">Chi tiêu chung</a>
+                <a class="collapse-item" href="{{ route('get_personal_daily_cost_view') }}">Chi tiêu cá nhân</a> --}}
             </div>
         </div>
     </li>
 
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-            <i class="fas fa-fw fa-cog"></i>
+            <i class="fas fa-fw fa-receipt"></i>
             <span>Trả góp</span>
         </a>
         <div id="collapseThree" class="collapse" aria-labelledby="collapseThree" data-parent="#accordionSidebar">
@@ -62,7 +62,7 @@
 
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
-            <i class="fas fa-fw fa-cog"></i>
+            <i class="fas fa-fw fa-chart-bar"></i>
             <span>Thống kê</span>
         </a>
         <div id="collapseFour" class="collapse" aria-labelledby="collapseFour" data-parent="#accordionSidebar">

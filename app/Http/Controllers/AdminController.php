@@ -28,11 +28,11 @@ class AdminController extends Controller
         $this->data['year'] = date('Y');
         $this->data['together'] = config('constants.COST_TYPE.TOGETHER');
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null and daily_costs.percent_per_one > 0 AND daily_costs.percent_per_two > 0'))
-                                    ->where('payer', Auth::user()->id)
+                                    ->whereRaw(DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null and daily_costs.is_together = '.config('constants.COST_TYPE.TOGETHER')))
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
+
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
@@ -284,19 +284,15 @@ class AdminController extends Controller
         $this->data['month'] = date('m');
         $this->data['year'] = date('Y');
         $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
-        $condition = DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null');
 
-        if (Auth::user()->id == 1) {
-            $condition .= DB::raw(' and daily_costs.percent_per_two = 0');
-        } else {
-            $condition .= DB::raw(' and daily_costs.percent_per_one = 0');
-        }
+        $condition = DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null and payer = '.Auth::user()->id.' and daily_costs.is_together = 0');
+
         $this->data['costs'] = DB::table('daily_costs')
                                     ->whereRaw($condition)
-                                    ->where('payer', Auth::user()->id)
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
+
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
@@ -308,12 +304,12 @@ class AdminController extends Controller
                                     ->get();
         $this->data['costs'] = $this->data['costs']->groupBy('date');
         $this->data['costs']->toJson();
-        // return $this->data['costs'];
+
         $this->data['month'] = $month;
         $this->data['year'] = $year;
         $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
         $this->data['users'] = User::all();
-        // return $this->data;
+
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
@@ -329,6 +325,11 @@ class AdminController extends Controller
                 $condition .= DB::raw(' and daily_costs.is_together = 0 AND daily_costs.payer = '.Auth::user()->id);
             }
         }
+
+        if ($re->keyword) {
+            $condition .= DB::raw(" and daily_costs.payfor like '%$re->keyword%'");
+        }
+
         $this->data['costs'] = DB::table('daily_costs')
                                     ->whereRaw($condition)
                                     ->join('users','daily_costs.payer','=','users.id')
@@ -342,11 +343,18 @@ class AdminController extends Controller
         $this->data['year'] = $re->year;
         $this->data['together'] = $re->together;
         // return view('pages.admin.test')->with($this->data);
+        $re->flash();
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
     public function filterDailyCost(Request $re) {
-        $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null and daily_costs.payer = '.Auth::user()->id);
+        
+        $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null and daily_costs.is_together = 1');
+
+        if ($re->together == config('constants.COST_TYPE.PERSONAL')) {
+            $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null and daily_costs.is_together = 0 and daily_costs.payer = '.Auth::user()->id);
+        }
+
         $this->data['costs'] = DB::table('daily_costs')
                                     ->whereRaw($condition)
                                     ->join('users','daily_costs.payer','=','users.id')
