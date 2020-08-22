@@ -456,6 +456,23 @@ class AdminController extends Controller
         return view('pages.admin.installment_detail')->with($this->data);
     }
 
+    public function CheckOutInstallment($id, $detail) {
+        $details = InstallmentDetail::find($detail);
+        $details->status = 1;
+
+
+        $installment = Installment::find($id);
+        if ($installment->waiting_amout != 0) {
+            $installment->waiting_amout = $installment->waiting_amout - $details->trans_amout;
+        } else {
+            $installment->waiting_amout = $installment->trans_amout - $details->trans_amout;
+        }
+
+        $installment->save();
+        $details->save();
+
+        return redirect()->back()->with('success','Cập nhật thành công');
+    }
     public function AjaxInstallmentDetail(Request $re) {
         $ins_detail = InstallmentDetail::where('installment_id', $re->id)->get();
         return response()->json(['detail'=>$ins_detail]);

@@ -176,6 +176,7 @@
                                                 <th>Ngày trả</th>
                                                 <th>Số tiền</th>
                                                 <th>Trạng thái</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -185,6 +186,11 @@
                                                 <td>{{ showDateInDMY($detail->pay_date) }}</td>
                                                 <td>{{ number_format($cost_per_month)}} ₫</td>
                                                 <td class="text-center">{!! showInstallmentStatus($detail->status) !!}</td>
+                                                <td class="text-center">
+                                                    @if ($detail->status == 0)
+                                                        <a href="{{ route('checkout_installment',['id'=>$installment->id,'detail'=>$detail->id]) }}" class="btn btn-primary btn-sm checkout">Thanh toán</a>
+                                                    @endif
+                                                </td>
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -202,6 +208,9 @@
 @section('js')
     <script>
         $(document).ready(function(){
+            $('.checkout').click(function(){
+                blockUI(true);
+            })
             blockUI(false);
             // $('#table').DataTable({
             //     // "order": [0, 'desc']

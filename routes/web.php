@@ -50,6 +50,7 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::post('add-installment','AdminController@AddInstallmentList')->name('add_installment');
 
     Route::get('installment-detail{id}','AdminController@InstallmentDetail')->name('installment_details');
+    Route::get('checkout-installment-{id}-{detail}','AdminController@CheckOutInstallment')->name('checkout_installment');
 
     Route::post('ajax-installment-detail','AdminController@AjaxInstallmentDetail')->name('ajax-installment_details');
 
