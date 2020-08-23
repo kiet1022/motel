@@ -15,6 +15,7 @@ Use App\Model\DailyCost;
 Use App\Model\Category;
 Use App\Model\Installment;
 Use App\Model\InstallmentDetail;
+Use App\Model\StorageManager;
 
 class AdminController extends Controller
 {
@@ -367,9 +368,8 @@ class AdminController extends Controller
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function sendMail() {
+    public function sendMail($month) {
         try {
-        $month = date('m') - 1;
 
         $costs = DB::table('daily_costs')
         ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
@@ -388,7 +388,7 @@ class AdminController extends Controller
         );
 
         Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt'));
-        Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
+        // Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
         return redirect()->back()->with('success','Gửi mail thành công!');
         } catch (Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());
@@ -532,5 +532,40 @@ class AdminController extends Controller
         $this->data['month_to'] = $month_to;
         $this->data['arr_data'] = $arr_data;
         return $this->data;
+    }
+
+    public function NoftifyAndStorageManagement(){
+        $this->data['managers'] = StorageManager::where('year',date('Y'))->orderBy('month','asc')->get();
+        return view('pages.admin.notify_storage_manager')->with($this->data);
+    }
+
+    public function CleanStorage($id) {
+        try {
+            DB::beginTransaction();
+            $storage = StorageManager::find($id);
+            $storage->storage_status = 1;
+            $storage->save();
+            $images = DB::table('daily_costs')
+            ->whereRaw(DB::raw('MONTH(date) = '.$storage->month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
+            ->get();
+
+            $length = count($images);
+            $count = 0;
+            for($i=0; $i<$length; $i++) {
+                if($images[$i]->image !== null) {
+                    $path = "img/".$images[$i]->image;
+                    if(file_exists($path)){
+                        unlink($path);
+                        $count++;
+                    }
+                }
+            }
+            DB::commit();
+            return redirect()->back()->with('success','Đã xoá '.$count.' hoá đơn!');
+        } catch (Exception $ex) {
+            DB::rollback();
+            return redirect()->back()->with('error',$ex->getMessage());
+        }
+        
     }
 }

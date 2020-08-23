@@ -39,6 +39,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 {{-- <h6 class="collapse-header">Chi phí cố đ</h6> --}}
                 <a class="collapse-item" href="{{ route('get_add_fixed_cost_view') }}">Chi phí cố định</a>
+                <a class="collapse-item" href="{{ route('notify_storage_management') }}">Thông báo - Dung lượng</a>
                 {{-- <a class="collapse-item" href="{{ route('get_daily_cost_view') }}">Chi tiêu chung</a>
                 <a class="collapse-item" href="{{ route('get_personal_daily_cost_view') }}">Chi tiêu cá nhân</a> --}}
             </div>

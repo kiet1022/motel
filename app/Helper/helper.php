@@ -45,4 +45,24 @@
             return $result;
         }
     }
+
+    if (! function_exists('showStatusForNotify')) {
+        function showStatusForNotify($status){
+            $result = '<span class="badge badge-danger">Chưa gửi mail</span>';
+
+            $result = $status == 1 ? '<span class="badge badge-success">Đã gửi mail</span>' : $result;
+            
+            return $result;
+        }
+    }
+
+    if (! function_exists('showStatusForStorage')) {
+        function showStatusForStorage($status){
+            $result = '<span class="badge badge-danger">Chưa dọn dẹp hoá đơn</span>';
+
+            $result = $status == 1 ? '<span class="badge badge-success">Đã dọn dẹp hoá đơn</span>' : $result;
+            
+            return $result;
+        }
+    }
 ?>

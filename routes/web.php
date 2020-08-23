@@ -43,7 +43,7 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('monthlyCostView/{month}/{year}','AdminController@getMonthlyCostView')->name('get_monthly_cost_view');
     Route::post('filterMonthlyCost','AdminController@filterMonthlyCost')->name('filter_monthly_cost');
 
-    Route::get('sendMailNotify','AdminController@sendMail')->name('send_mail');
+    Route::get('sendMailNotify-{month}','AdminController@sendMail')->name('send_mail');
 
     Route::get('installment-list','AdminController@getInstallmentList')->name('get_installment_list');
     Route::get('add-installment','AdminController@getAddInstallmentList')->name('add_installment_page');
@@ -60,7 +60,8 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('statistical-compare','AdminController@statisticalCompare')->name('statistical-compare');
     Route::post('statistical-compare-filter','AdminController@filterCompareStatistical')->name('filter_statiscal_compare');
     
-
+    Route::get('notify-storage-management','AdminController@NoftifyAndStorageManagement')->name('notify_storage_management');
+    Route::get('clean-storage-{id}','AdminController@CleanStorage')->name('clean_storage');
     
 });
 

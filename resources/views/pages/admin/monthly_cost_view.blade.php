@@ -227,9 +227,6 @@
                                             <div class="btn-group mr-2" role="group" aria-label="First group">
                                                 <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['together'=>$together]) }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
                                             </div>
-                                            <div class="btn-group" role="group" aria-label="Third group">
-                                                <a class="btn btn-success btn-sm send-mail"  href="{{ route('send_mail')}}"><i class="fas fa-envelope"></i> Tổng kết tháng</a>
-                                            </div>
                                         </div>
                                         <div class="btn-group" role="group" aria-label="Basic example">
                                         </div>
@@ -343,9 +340,6 @@
                                     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                                         <div class="btn-group mr-2" role="group" aria-label="First group">
                                             <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['together'=>$together]) }}"><i class="fas fa-plus"></i> Thêm chi tiêu</a>
-                                        </div>
-                                        <div class="btn-group" role="group" aria-label="Third group">
-                                            <a class="btn btn-success btn-sm send-mail"  href="{{ route('send_mail')}}"><i class="fas fa-envelope"></i> Tổng kết tháng</a>
                                         </div>
                                     </div>
                                     <div id="tb-total">
