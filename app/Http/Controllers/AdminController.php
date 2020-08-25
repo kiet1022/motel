@@ -368,7 +368,7 @@ class AdminController extends Controller
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function sendMail($month) {
+    public function sendMail($month, $id) {
         try {
 
         $costs = DB::table('daily_costs')
@@ -389,6 +389,12 @@ class AdminController extends Controller
 
         Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt'));
         // Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
+
+        // update notify status
+        $managers = StorageManager::find($id);
+        $managers->notify_status = 1;
+        $managers->save();
+
         return redirect()->back()->with('success','Gửi mail thành công!');
         } catch (Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());

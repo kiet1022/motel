@@ -43,7 +43,7 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('monthlyCostView/{month}/{year}','AdminController@getMonthlyCostView')->name('get_monthly_cost_view');
     Route::post('filterMonthlyCost','AdminController@filterMonthlyCost')->name('filter_monthly_cost');
 
-    Route::get('sendMailNotify-{month}','AdminController@sendMail')->name('send_mail');
+    Route::get('sendMailNotify-{month}-{id}','AdminController@sendMail')->name('send_mail');
 
     Route::get('installment-list','AdminController@getInstallmentList')->name('get_installment_list');
     Route::get('add-installment','AdminController@getAddInstallmentList')->name('add_installment_page');
