@@ -397,7 +397,7 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success','Gửi mail thành công!');
         } catch (Exception $e) {
-            return redirect()->back()->with('error',$e->getMessage());
+            return redirect()->back()->with('error',$e->getMessage()); 
         }
     }
 
