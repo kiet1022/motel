@@ -215,7 +215,7 @@
                                             <div class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="category">Danh mục: </label>
                                                 <select id="category" class="form-control" name="category">
-                                                    <option selected disabled>Tất cả chi tiêu<option>
+                                                    <option selected disabled>Tất cả chi tiêu</option>
                                                     @foreach ($categories as $ct)
                                                         <option value="{{ $ct->id }}" @if ($ct->id == old('category')) {{ "selected" }} @endif>{{ $ct->name }}</option>
                                                     @endforeach
