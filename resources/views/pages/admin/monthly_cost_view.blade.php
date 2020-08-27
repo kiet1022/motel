@@ -211,11 +211,22 @@
                                                     @if ($together == config('constants.COST_TYPE.PERSONAL')) {{ "selected" }} @endif> Chi tiêu cá nhân</option>
                                                 </select>
                                             </div>
+                                            
+                                            <div class="col-lg-3 col-md-3 col-xs-12 form-group">
+                                                <label for="category">Danh mục: </label>
+                                                <select id="category" class="form-control" name="category">
+                                                    <option selected disabled>Tất cả chi tiêu<option>
+                                                    @foreach ($categories as $ct)
+                                                        <option value="{{ $ct->id }}" @if ($ct->id == old('category')) {{ "selected" }} @endif>{{ $ct->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
 
                                             <div class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="keyword">Tìm kiếm chi tiêu: </label>
                                                 <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Nhập từ khoá" value="{{ old('keyword') }}">
                                             </div>
+
 
                                         </div>
 

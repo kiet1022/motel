@@ -305,7 +305,7 @@ class AdminController extends Controller
                                     ->get();
         $this->data['costs'] = $this->data['costs']->groupBy('date');
         $this->data['costs']->toJson();
-
+        $this->data['categories'] = Category::all();
         $this->data['month'] = $month;
         $this->data['year'] = $year;
         $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
@@ -331,6 +331,10 @@ class AdminController extends Controller
             $condition .= DB::raw(" and daily_costs.payfor like '%$re->keyword%'");
         }
 
+        if ($re->category) {
+            $condition .= DB::raw(" and daily_costs.category = $re->category");
+        }
+
         $this->data['costs'] = DB::table('daily_costs')
                                     ->whereRaw($condition)
                                     ->join('users','daily_costs.payer','=','users.id')
@@ -339,11 +343,11 @@ class AdminController extends Controller
 
         $this->data['costs'] = $this->data['costs']->groupBy('date');
         $this->data['costs']->toJson();
-
+        $this->data['categories'] = Category::all();
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
         $this->data['together'] = $re->together;
-        // return view('pages.admin.test')->with($this->data);
+        
         $re->flash();
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
