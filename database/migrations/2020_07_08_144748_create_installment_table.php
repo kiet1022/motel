@@ -26,6 +26,7 @@ class CreateInstallmentTable extends Migration
             $table->date('due_date');
             $table->integer('cycle');
             $table->integer('waiting_amout');
+            $table->unsignedInteger('payer');
             $table->timestamps();
             $table->softDeletes()->nullable();
         });

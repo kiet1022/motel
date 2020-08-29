@@ -21,10 +21,13 @@ class CreateDailyCostsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('payer');
             $table->string('payfor')->nullable();
+            $table->unsignedInteger('category')->nullable();
             $table->integer('total')->nullable();
             $table->date('date')->nullable();
             $table->integer('percent_per_one')->nullable();
             $table->integer('percent_per_two')->nullable();
+            $table->string('image')->null();
+            $table->integer('is_together')->nullable();
             $table->unsignedInteger('created_by')->nullable();
             $table->unsignedInteger('updated_by')->nullable();
             $table->timestamps();

@@ -62,6 +62,9 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     
     Route::get('notify-storage-management','AdminController@NoftifyAndStorageManagement')->name('notify_storage_management');
     Route::get('clean-storage-{id}','AdminController@CleanStorage')->name('clean_storage');
+
+    Route::get('balance-view','AdminController@getBalanceList')->name('balance_list');
+    Route::post('add-balance','AdminController@addBalance')->name('add_balance');
     
 });
 

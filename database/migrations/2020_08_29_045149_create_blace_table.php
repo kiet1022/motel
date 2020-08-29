@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateNotifyTable extends Migration
+class CreateBlaceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,19 @@ class CreateNotifyTable extends Migration
      */
     public function up()
     {
-        Schema::create('notify', function (Blueprint $table) {
+        Schema::create('balance', function (Blueprint $table) {
             $table->charset = 'utf8';
             $table->collation = 'utf8_unicode_ci';
             $table->engine = 'InnoDB';
 
             $table->increments('id');
             $table->integer('month');
-            $table->integer('status');
+            $table->integer('year');
+            $table->integer('opening_balance');
+            $table->integer('ending_balance');
+            $table->integer('total_used');
             $table->timestamps();
             $table->softDeletes()->nullable();
-
         });
     }
 
@@ -34,6 +36,6 @@ class CreateNotifyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notify');
+        Schema::dropIfExists('balance');
     }
 }

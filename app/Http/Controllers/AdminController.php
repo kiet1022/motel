@@ -16,6 +16,10 @@ Use App\Model\Category;
 Use App\Model\Installment;
 Use App\Model\InstallmentDetail;
 Use App\Model\StorageManager;
+Use App\Model\Balance;
+
+/* Request Import */
+Use App\Http\Requests\BalanceRequest;
 
 class AdminController extends Controller
 {
@@ -577,5 +581,28 @@ class AdminController extends Controller
             return redirect()->back()->with('error',$ex->getMessage());
         }
         
+    }
+
+    public function getBalanceList(){
+        $this->data['balances'] = Balance::all();
+        return view('pages.admin.balance_view')->with($this->data);
+    }
+
+    public function addBalance(BalanceRequest $re){
+        try {
+            DB::beginTransaction();
+            $balance = new Balance();
+            $balance->month = $re->month;
+            $balance->year = date('Y');
+            $balance->opening_balance = $re->opening_balance;
+            $balance->ending_balance = $re->opening_balance;
+            $balance->total_used = 0;
+            $balance->save();
+            DB::commit();
+            return redirect()->back()->with('success','Thêm thành công!');
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error','Thêm thất bại!');
+        }
     }
 }
