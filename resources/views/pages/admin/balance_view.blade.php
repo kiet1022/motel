@@ -400,10 +400,10 @@
 @endsection
 @section('js')
     <script>
-        // var err = "{{$errors->any()}}";
-        // if (err) {
-        //     $('#btn-show-modal').click();
-        // }
+        var err = "{{$errors->any()}}";
+        if (err) {
+            $('#btn-show-modal').click();
+        }
         var table = $('#table1').DataTable({});
         
         $(document).ready(function(){

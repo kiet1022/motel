@@ -172,7 +172,10 @@ var myChart = new Chart(ctx, {
                         }
                     }
                 }]
-            }
+            },
+        onClick: function (e, data) {
+            console.log(e, data);
+        }
     }
 });
 

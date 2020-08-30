@@ -186,7 +186,7 @@
                                         <div class="form-row">
                                             <div class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="year">Chọn năm: </label>
-                                                <select id="my-select" class="form-control" name="year">
+                                                <select id="year" class="form-control" name="year">
                                                     @for ($i = 2020; $i <= 2025; $i++)
                                                         <option value="{{ $i }}" @if ($i == $year) {{ "selected" }} @endif>Năm {{ $i }}</option>
                                                     @endfor
@@ -194,8 +194,8 @@
                                             </div>
     
                                             <div class="col-lg-3 col-md-3 col-xs-12 form-group">
-                                                <label for="my-select">Chọn tháng: </label>
-                                                <select id="my-select" class="form-control" name="month">
+                                                <label for="month">Chọn tháng: </label>
+                                                <select id="month" class="form-control" name="month">
                                                     @for ($i = 1; $i <= 12; $i++)
                                                         <option value="{{ $i }}" @if ($i == $month) {{ "selected" }} @endif>Tháng {{ $i }}</option>
                                                     @endfor
@@ -203,8 +203,8 @@
                                             </div>
 
                                             <div class="col-lg-3 col-md-3 col-xs-12 form-group">
-                                                <label for="my-select">Loại chi tiêu: </label>
-                                                <select id="my-select" class="form-control" name="together">
+                                                <label for="together">Loại chi tiêu: </label>
+                                                <select id="together" class="form-control" name="together">
                                                     <option value="1" 
                                                     @if ($together == config('constants.COST_TYPE.TOGETHER')) {{ "selected" }} @endif>Chi tiêu chung</option>
                                                     <option value="0" 
@@ -212,10 +212,10 @@
                                                 </select>
                                             </div>
                                             
-                                            <div class="col-lg-3 col-md-3 col-xs-12 form-group">
+                                            <div id="category-filter" class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="category">Danh mục: </label>
                                                 <select id="category" class="form-control" name="category">
-                                                    <option selected disabled>Tất cả chi tiêu</option>
+                                                    <option selected>Tất cả chi tiêu</option>
                                                     @foreach ($categories as $ct)
                                                         <option value="{{ $ct->id }}" @if ($ct->id == old('category')) {{ "selected" }} @endif>{{ $ct->name }}</option>
                                                     @endforeach
@@ -418,6 +418,18 @@
             // Show detail of first row
             // $('tr td:first').click();
         })
+
+        $('#together').on('change',function(){
+            var val = $(this).val();
+            if(val == "1") {
+                $('#category-filter').addClass('d-none');
+                $('#category').attr('disabled',true);
+                
+            } else  {
+                $('#category-filter').removeClass('d-none');
+                $('#category').attr('disabled',false);
+            }
+        })
         
         $('#table1 tbody').on('click', 'td.details-control', function () {
             var tr = $(this).closest('tr');
@@ -472,7 +484,7 @@
             html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_one)+'</td>';
             html += '<td>'+element.percent_per_two+'%</td>';
             html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_two)+'</td>';
-            if (element.image != null) {
+            if (element.image) {
                 html += '<td><a class="btn btn-primary btn-sm" href="../../../img/'+element.image+'" target="_blank">Xem</a></td>';
             } else {
                 html += '<td></td>';
