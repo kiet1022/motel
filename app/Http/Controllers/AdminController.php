@@ -290,7 +290,9 @@ class AdminController extends Controller
         $this->data['year'] = date('Y');
         $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
 
-        $condition = DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null and payer = '.Auth::user()->id.' and daily_costs.is_together = 0');
+        $condition = DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.
+        $this->data['year'].' and deleted_at is null and payer = '.
+        Auth::user()->id.' and daily_costs.is_together = 0');
 
         $this->data['costs'] = DB::table('daily_costs')
                                     ->whereRaw($condition)
@@ -303,7 +305,10 @@ class AdminController extends Controller
 
     public function getMonthlyCostView($month = 6, $year = 2020) {
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and payer = '.Auth::user()->id.' and deleted_at is null and daily_costs.is_together = 0'))
+                                    ->whereRaw(DB::raw('MONTH(date) = '.
+                                    $month.' and YEAR(date) = '.
+                                    $year.' and payer = '.Auth::user()->id.
+                                    ' and deleted_at is null and daily_costs.is_together = 0'))
                                     ->join('users','daily_costs.payer','=','users.id')
                                     ->select('daily_costs.*','users.name')
                                     ->get();
