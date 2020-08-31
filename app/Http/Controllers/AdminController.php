@@ -117,7 +117,8 @@ class AdminController extends Controller
             return redirect()->back()->with('success','Thêm thành công!');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error','Thêm Thất bại!');
+            // return redirect()->back()->with('error','Thêm Thất bại!');
+            return redirect()->back()->with('error',$ex->getMessage());
         }
     }
 
