@@ -393,7 +393,7 @@ class AdminController extends Controller
 
         $ele_cost = DB::table('daily_costs')
         ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
-        ->select(['total','payfor'])->where('daily_costs.payfor','like','%điện%')->get();
+        ->select(['total','payfor'])->where('daily_costs.payfor','like','%tiền điện%')->get();
 
         $data = array(
             'total' => $costs[0]->total_per_two,
@@ -402,7 +402,7 @@ class AdminController extends Controller
         );
 
         Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt'));
-        // Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
+        Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
 
         // update notify status
         $managers = StorageManager::find($id);

@@ -153,10 +153,10 @@
                                                 <td class="text-center">{!! showStatusForStorage($mng->storage_status) !!}</td>
                                                 <td class="text-center">
                                                     @if ($mng->notify_status == 0)
-                                                        <a href="{{ route('send_mail',['month' => $mng->month, 'id' => $mng->id])}}" class="btn btn-primary btn-sm"><i class="fas fa-envelope"></i> Gửi mail</a>
+                                                        <a href="{{ route('send_mail',['month' => $mng->month, 'id' => $mng->id])}}" class="btn btn-primary btn-sm btn-action"><i class="fas fa-envelope"></i> Gửi mail</a>
                                                     @endif
                                                     @if ($mng->storage_status == 0)
-                                                        <a href="{{ route('clean_storage',['id' => $mng->id])}}" class="btn btn-primary btn-sm"><i class="fas fa-trash"></i> Dọn dẹp hoá đơn</a>
+                                                        <a href="{{ route('clean_storage',['id' => $mng->id])}}" class="btn btn-primary btn-sm btn-action"><i class="fas fa-trash"></i> Dọn dẹp hoá đơn</a>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -182,12 +182,9 @@
                 orderable: false
             });
 
-            $('.delete').click(function(){
+            $('.btn-action').click(function(){
                 blockUI(true);
             })
-            $(document).on('submit',"form", function(e){
-            blockUI(true);
-        });
         })
     </script>
 @endsection

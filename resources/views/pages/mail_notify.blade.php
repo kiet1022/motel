@@ -21,8 +21,8 @@
     <li>Tiền phòng: <span class="red">1,300,000 vnđ</span></li>
     <li>Tiền nước: <span class="red">50,000 vnđ</span></li>
     <li>Tiền rác: <span class="red">12,500 vnđ</span> </li>
-    <li>{{ $ele_cost_name }}: <span class="red">{{ number_format($ele_cost_value) }} vnđ</span> </li>
-    <li>Chi tiêu khác: <span class="red">{{ number_format($total - (1300000+12500+50000+$ele_cost_value))}} vnđ</span></li>
+    <li>{{ $ele_cost_name }}: <span class="red">{{ number_format($ele_cost_value/2) }} vnđ</span> </li>
+    <li>Chi tiêu khác: <span class="red">{{ number_format($total - (1300000+12500+50000+($ele_cost_value/2)))}} vnđ</span></li>
 </ul>
 <h1 class="red">Tổng: {{ number_format($total)}} vnđ</h1>
  @component('mail::panel')

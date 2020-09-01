@@ -215,7 +215,7 @@
                                             <div id="category-filter" class="col-lg-3 col-md-3 col-xs-12 form-group">
                                                 <label for="category">Danh mục: </label>
                                                 <select id="category" class="form-control" name="category">
-                                                    <option selected>Tất cả chi tiêu</option>
+                                                    <option value="" selected>Tất cả chi tiêu</option>
                                                     @foreach ($categories as $ct)
                                                         <option value="{{ $ct->id }}" @if ($ct->id == old('category')) {{ "selected" }} @endif>{{ $ct->name }}</option>
                                                     @endforeach
@@ -417,10 +417,12 @@
 
             // Show detail of first row
             // $('tr td:first').click();
+            checkCategorySelect($('#together'))
         })
 
-        $('#together').on('change',function(){
-            var val = $(this).val();
+        function checkCategorySelect(togertherSelect) {
+            debugger
+            var val = togertherSelect.val();
             if(val == "1") {
                 $('#category-filter').addClass('d-none');
                 $('#category').attr('disabled',true);
@@ -429,6 +431,10 @@
                 $('#category-filter').removeClass('d-none');
                 $('#category').attr('disabled',false);
             }
+        }
+
+        $('#together').on('change',function(){
+            checkCategorySelect($(this));
         })
         
         $('#table1 tbody').on('click', 'td.details-control', function () {
