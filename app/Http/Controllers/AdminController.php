@@ -477,22 +477,50 @@ class AdminController extends Controller
     }
 
     public function CheckOutInstallment($id, $detail) {
-        $details = InstallmentDetail::find($detail);
-        $details->status = 1;
+        try {
+            DB::beginTransaction();
+            $details = InstallmentDetail::find($detail);
+            $details->status = 1;
+    
+    
+            $installment = Installment::find($id);
+            if ($installment->waiting_amout != 0) {
+                $installment->waiting_amout = $installment->waiting_amout - $details->trans_amout;
+            } else {
+                $installment->waiting_amout = $installment->trans_amout - $details->trans_amout;
+            }
+    
+            $installment->save();
+            $details->save();
 
+            $daily = new DailyCost;
+            $daily->payfor = "Trả góp $installment->details";
+            $daily->payer = Auth::user()->id;
+            $daily->date = $details->pay_date;
+            $daily->total = $details->trans_amout;
+            $daily->is_together = 0;
+            if (Auth::user()->id == 1) {
+                $daily->percent_per_one = 100;
+                $daily->percent_per_two = 0;
+                $daily->total_per_one = $details->trans_amout;
+                $daily->total_per_two = 0;
+            } else {
+                $daily->percent_per_one = 0;
+                $daily->percent_per_two = 100;
+                $daily->total_per_two = $details->trans_amout;
+                $daily->total_per_one = 0;
+            }
+            $daily->category = 6;
+            $daily->save();
 
-        $installment = Installment::find($id);
-        if ($installment->waiting_amout != 0) {
-            $installment->waiting_amout = $installment->waiting_amout - $details->trans_amout;
-        } else {
-            $installment->waiting_amout = $installment->trans_amout - $details->trans_amout;
+            DB::commit();
+            return redirect()->back()->with('success','Cập nhật thành công');
+        } catch (Exception $ex) {
+            DB::rollback();
+            return redirect()->back()->with('error',$ex->getMessage());
         }
-
-        $installment->save();
-        $details->save();
-
-        return redirect()->back()->with('success','Cập nhật thành công');
     }
+
     public function AjaxInstallmentDetail(Request $re) {
         $ins_detail = InstallmentDetail::where('installment_id', $re->id)->get();
         return response()->json(['detail'=>$ins_detail]);

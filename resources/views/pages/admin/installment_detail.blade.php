@@ -1,5 +1,5 @@
 @extends('core.admin')
-@section('title', 'Chi tiêu chung')
+@section('title', 'Trả góp')
 @section('css')
 <style>
         .btn-danger {
