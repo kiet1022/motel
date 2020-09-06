@@ -226,7 +226,7 @@
                                 <label for="keyword">Tìm kiếm chi tiêu: </label>
                                 <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Nhập từ khoá" value="{{ old('keyword') }}">
                             </div>
-                            
+                            <input type="hidden" id="together-value" value="{{ $together }}">
                             
                         </div>
                         
@@ -424,7 +424,6 @@
     })
     
     function checkCategorySelect(togertherSelect) {
-        debugger
         var val = togertherSelect.val();
         if(val == "1") {
             $('#category-filter').addClass('d-none');
@@ -454,9 +453,9 @@
             row.child(format(data)).show();
             $.fn.dataTable.ext.errMode = 'none';
             $('table.table-detail').DataTable({
-                columnDefs: [
-                { "width": "5%", "targets": 3 },
-                { "width": "5%", "targets": 5 }],
+                // columnDefs: [
+                // { "width": "5%", "targets": 3 },
+                // { "width": "5%", "targets": 1 }],
             });
             tr.addClass('shown');
         }
@@ -465,6 +464,7 @@
     function format (data) {
         
         console.log(data)
+        var isTogether = $('#together-value').val();
         var count = 0;
         // `d` is the original data object for the row
         var html = '<table class="table table-hover tabel-stripped table-bordered table-detail">';
@@ -473,10 +473,12 @@
             html += '<th>Lý do chi</th>';
             html += '<th>Số tiền đã chi</th>';
             html += '<th>Người chi</th>';
-            html += '<th>Phần trăm (Kiệt)</th>';
-            html += '<th>Thực chi (Kiệt)</th>';
-            html += '<th>Phần trăm (Thạch)</th>';
-            html += '<th>Thực chi (Thạch)</th>';
+            if (isTogether == 1) {
+                html += '<th>Phần trăm (Kiệt)</th>';
+                html += '<th>Thực chi (Kiệt)</th>';
+                html += '<th>Phần trăm (Thạch)</th>';
+                html += '<th>Thực chi (Thạch)</th>';
+            }
             html += '<th>Hóa đơn</th>';
             html += '<th></th></tr>';
             html += '</tr>';                                     
@@ -487,12 +489,15 @@
                 console.log(element);
                 html += '<tr>';
                 html += '<td>'+element.payfor+'</td>';
-                html += '<td>'+numberFormat(element.total)+'</td>';
+                html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total)+'</td>';
                 html += '<td>'+element.name+'</td>';
-                html += '<td>'+element.percent_per_one+'%</td>';
-                html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_one)+'</td>';
-                html += '<td>'+element.percent_per_two+'%</td>';
-                html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_two)+'</td>';
+                if (isTogether == 1) {
+                    html += '<td>'+element.percent_per_one+'%</td>';
+                    html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_one)+'</td>';
+                    html += '<td>'+element.percent_per_two+'%</td>';
+                    html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_two)+'</td>';
+                }
+                
                 if (element.image) {
                     html += '<td><a class="btn btn-primary btn-sm" href="../../../img/'+element.image+'" target="_blank">Xem</a></td>';
                 } else {
