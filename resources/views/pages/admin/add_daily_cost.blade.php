@@ -170,9 +170,21 @@
         $('#date').val(now);
         
         // Format currency
-        $('#total').number(true);
+        
         $('#total').change(function(){
+            
+            if ($(this).val().includes('k')) {
+                var value = $(this).val().replace('k','').concat('000');
+                $('#total').number(true);
+                $(this).val(value)
+            }
             $('#total_value').val($('#total').val());
+        });
+
+        $('#total').focus(function(){
+            debugger
+            console.log($(this).val());
+            $('#total').number(false);
         });
 
         // Update value of percent_per_two when percent_per_one has changed
