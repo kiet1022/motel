@@ -65,6 +65,10 @@ Route::prefix('admin')->middleware('auth')->group(function(){
 
     Route::get('balance-view','AdminController@getBalanceList')->name('balance_list');
     Route::post('add-balance','AdminController@addBalance')->name('add_balance');
+
+    Route::get('cost-calculation','AdminController@getCostCalculation')->name('cost_calculation');
+    Route::post('calculate-cost','AdminController@calculateCost')->name('calculate_cost');
+    
     
 });
 

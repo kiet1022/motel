@@ -20,6 +20,7 @@ Use App\Model\Balance;
 
 /* Request Import */
 Use App\Http\Requests\BalanceRequest;
+Use App\Http\Requests\AddDailyCostRequest;
 
 class AdminController extends Controller
 {
@@ -50,7 +51,7 @@ class AdminController extends Controller
         return view('pages.admin.add_daily_cost')->with($this->data);
     }
 
-    public function addDailyCost(Request $re) {
+    public function addDailyCost(AddDailyCostRequest $re) {
         try {
             DB::beginTransaction();
             $daily = new DailyCost;
@@ -58,29 +59,33 @@ class AdminController extends Controller
             $daily->payer = $re->payer;
             $daily->date = $re->date;
             $daily->total = $re->total;
+            $daily->percent = join(',', $re->percent);
 
             $togetherFlg = $re->is_together;
-            if ($togetherFlg == 1) {
-                $daily->percent_per_one = $re->percent_per_one;
-                $daily->percent_per_two = $re->percent_per_two;
-                $daily->total_per_one = ($re->total * ($re->percent_per_one/100));
-                $daily->total_per_two = ($re->total * ($re->percent_per_two/100));
-                $daily->is_together = 1;
-                $daily->category = null;
-            } else {
-                if ($re->payer == 1) {
-                    $daily->percent_per_one = 100;
-                    $daily->percent_per_two = 0;
-                    $daily->total_per_one = $re->total;
-                    $daily->total_per_two = 0;
-                } else {
-                    $daily->percent_per_one = 0;
-                    $daily->percent_per_two = 100;
-                    $daily->total_per_two = $re->total;
-                    $daily->total_per_one = 0;
-                }
-                $daily->is_together = 0;
+            $daily->is_together = $togetherFlg;
+
+            if ($re->category) {
+                // $daily->percent_per_one = $re->percent_per_one;
+                // $daily->percent_per_two = $re->percent_per_two;
+                // $daily->total_per_one = ($re->total * ($re->percent_per_one/100));
+                // $daily->total_per_two = ($re->total * ($re->percent_per_two/100));
+                // $daily->is_together = 1;
                 $daily->category = $re->category;
+            } else {
+
+                // if ($re->payer == 1) {
+                //     $daily->percent_per_one = 100;
+                //     $daily->percent_per_two = 0;
+                //     $daily->total_per_one = $re->total;
+                //     $daily->total_per_two = 0;
+                // } else {
+                //     $daily->percent_per_one = 0;
+                //     $daily->percent_per_two = 100;
+                //     $daily->total_per_two = $re->total;
+                //     $daily->total_per_one = 0;
+                // }
+                // $daily->is_together = 0;
+                $daily->category = null;
             }
 
             if($re->hasFile('image')){
@@ -93,26 +98,25 @@ class AdminController extends Controller
                 $file->move("img",$img);
                 $daily->image = $img;
             }
-    
+
             $daily->save();
 
             if($re->ins_detail_id) {
                 // $insDetail = InstallmentDetail::with(['installment'])->where('id',$re->ins_detail_id)->get();
                 $insDetail = InstallmentDetail::find($re->ins_detail_id);
                 $insDetail->status = 1;
-                
-    
+
                 $installment = Installment::find($insDetail->installment_id);
                 if ($installment->waiting_amout != 0) {
                     $installment->waiting_amout = $installment->waiting_amout - $insDetail->trans_amout;
                 } else {
                     $installment->waiting_amout = $installment->trans_amout - $insDetail->trans_amout;
                 }
-                
+
                 $insDetail->save();
                 $installment->save();
             }
-            
+
             DB::commit();
             return redirect()->back()->with('success','Thêm thành công!');
         } catch (Exception $ex) {
@@ -357,13 +361,13 @@ class AdminController extends Controller
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
         $this->data['together'] = $re->together;
-        
+
         $re->flash();
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
     public function filterDailyCost(Request $re) {
-        
+
         $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null and daily_costs.is_together = 1');
 
         if ($re->together == config('constants.COST_TYPE.PERSONAL')) {
@@ -456,7 +460,7 @@ class AdminController extends Controller
                 $ins_detail->save();
             }
 
-            
+
             DB::commit();
             return redirect()->back()->with('success','Thêm thành công!');
         } catch (Exception $ex) {
@@ -468,7 +472,7 @@ class AdminController extends Controller
     public function InstallmentDetail($id) {
         $installment = Installment::find($id);
         $details = InstallmentDetail::where('installment_id',$id)->get();
-        
+
         $this->data['installment'] = $installment;
         $this->data['ins_detail'] = $details;
         $this->data['cost_per_month'] = round($installment->trans_amout / $installment->cycle, 2);
@@ -481,15 +485,15 @@ class AdminController extends Controller
             DB::beginTransaction();
             $details = InstallmentDetail::find($detail);
             $details->status = 1;
-    
-    
+
+
             $installment = Installment::find($id);
             if ($installment->waiting_amout != 0) {
                 $installment->waiting_amout = $installment->waiting_amout - $details->trans_amout;
             } else {
                 $installment->waiting_amout = $installment->trans_amout - $details->trans_amout;
             }
-    
+
             $installment->save();
             $details->save();
 
@@ -614,7 +618,7 @@ class AdminController extends Controller
             DB::rollback();
             return redirect()->back()->with('error',$ex->getMessage());
         }
-        
+
     }
 
     public function getBalanceList(){
@@ -638,5 +642,18 @@ class AdminController extends Controller
             DB::rollback();
             return redirect()->back()->with('error','Thêm thất bại!');
         }
+    }
+
+    public function getCostCalculation() {
+        if(session()->has('data')) {
+            session()->forget('data');
+        }
+        
+        return view('pages.admin.cost_caculator');
+    }
+
+    public function calculateCost(Request $re) {
+        $arr_name = explode(', ',$re->name);
+        return redirect()->back()->with('data',array($re->all(), $arr_name));
     }
 }

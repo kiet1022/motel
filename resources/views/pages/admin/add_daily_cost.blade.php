@@ -58,17 +58,48 @@
                         <div class="col-lg-6 form-group">
                             <label for="date">Ngày chi</label>
                             <input type="date" id="date" class="form-control" name="date" required>
+                            {{-- error --}}
+                            @if ($errors->get('date'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('date') as $date)
+                                        <li>{{$date}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                         
                         <div class="col-lg-6 form-group">
                             <label for="payfor">Nội dung</label>
                             <input type="text" id="payfor" class="form-control" name="payfor" placeholder="Nhập nội dung" required>
+                            {{-- error --}}
+                            @if ($errors->get('payfor'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('payfor') as $payfor)
+                                        <li>{{$payfor}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
+                        
                         
                         <div class="col-lg-6 form-group">
                             <label for="total">Số tiền (vnđ)</label>
                             <input type="text" id="total" class="form-control" placeholder="Nhập số tiền đã chi" required>
                             <input type="hidden" id="total_value" name="total">
+                            {{-- error --}}
+                            @if ($errors->get('total'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('total') as $total)
+                                        <li>{{$total}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                         
                         <div class="col-lg-6 form-group">
@@ -85,7 +116,7 @@
                                 @endforeach
                             </select>
                         </div>
-
+                        
                         <div class="col-lg-12 form-group row">
                             <div class="col-md-3 col-6">
                                 <label for="is_together" class="lbl-name">Chi tiêu chung</label><br>
@@ -102,10 +133,19 @@
                                 </label>
                             </div>
                         </div>
-
+                        {{-- error --}}
+                        @if ($errors->get('is_together'))
+                            <div class="cm-inline-form cm-error">
+                                <ul class="cm-ul-error" style="padding-left: 0px;">
+                                @foreach ($errors->get('is_together') as $is_together)
+                                    <li>{{$is_together}}</li>
+                                @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="col-lg-6 form-group category @if ($together == config('constants.COST_TYPE.TOGETHER')) d-none @endif">
                             <label for="category">Danh mục</label>
-                            <select id="category" class="form-control" name="category">
+                            <select id="category" class="form-control" name="category" @if ($together == config('constants.COST_TYPE.TOGETHER')) {{ "disabled" }} @endif>
                                 @foreach ($categories as $cat)
                                 <option value="{{ $cat->id }}">
                                     {{ $cat->name }}
@@ -131,15 +171,22 @@
                             <select id="installment-detail" class="form-control" name="ins_detail_id"></select>
                         </div>
 
-                        <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
-                            <label for="percent_per_one">Chia (%) Kiệt </label>
-                            <input type="text" id="percent_per_one" name="percent_per_one" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="50" required>
-                        </div>
-                        
-                        <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
-                            <label for="percent_per_two">Chia (%) Thạch</label>
-                            <input type="text" id="percent_per_two" name="percent_per_two" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="50" required>
-                        </div>
+                        @foreach ($users as $key => $user)
+                            <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
+                                <label for="percent">Chia (%) {{explode(' ', $user->name)[2]}} </label>
+                                <input type="text" name="percent[]" class="percent-per-person form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ old('percent') ? old('percent')[$key] : '50' }}" required>
+                            {{-- error --}}
+                                @if ($errors->get('percent'))
+                                    <div class="cm-inline-form cm-error">
+                                        <ul class="cm-ul-error" style="padding-left: 0px;">
+                                        @foreach ($errors->get('percent') as $percent)
+                                            <li>{{$percent}}</li>
+                                        @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
                         
                         <div class="col-lg-12">
                             <label for="image">Ảnh hóa đơn (nếu có)</label>
@@ -187,20 +234,6 @@
             $('#total').number(false);
         });
 
-        // Update value of percent_per_two when percent_per_one has changed
-        $('#percent_per_one').number(true);
-        $('#percent_per_one').change(function(ev){
-            $('#percent_per_two').val(100 - ev.target.value);
-            
-        });
-
-        //Update value of percent_per_two when percent_per_one has changed
-        $('#percent_per_two').number(true);
-        $('#percent_per_two').change(function(ev){
-            $('#percent_per_one').val(100 - ev.target.value);
-            
-        });
-
         // Is person handle
         $('.is_together').change(function(ev) {
             console.log();
@@ -209,7 +242,7 @@
             if (isTogether == 1) {
                 $('.percent').removeClass('d-none');
                 $('.category').addClass('d-none');
-                // $('.lbl-name').html('Chi tiêu chung');
+                $('#category').attr('disabled',true);
                 $('#percent_per_one').prop('disabled', false);
                 $('#percent_per_two').prop('disabled', false);
                 $('.installment-detail').addClass('d-none');
@@ -217,7 +250,7 @@
             } else {
                 $('.percent').addClass('d-none');
                 $('.category').removeClass('d-none');
-                // $('.lbl-name').html('Chi tiêu cá nhân');
+                $('#category').attr('disabled',false);
                 $('#percent_per_one').prop('disabled', true);
                 $('#percent_per_two').prop('disabled', true);
 
