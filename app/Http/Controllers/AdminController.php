@@ -64,27 +64,14 @@ class AdminController extends Controller
             $togetherFlg = $re->is_together;
             $daily->is_together = $togetherFlg;
 
-            if ($re->category) {
-                // $daily->percent_per_one = $re->percent_per_one;
-                // $daily->percent_per_two = $re->percent_per_two;
-                // $daily->total_per_one = ($re->total * ($re->percent_per_one/100));
-                // $daily->total_per_two = ($re->total * ($re->percent_per_two/100));
-                // $daily->is_together = 1;
+            if ($togetherFlg == 0) {
                 $daily->category = $re->category;
+                if ($re->payer == 1) {
+                    $daily->percent = "100,0";
+                } else {
+                    $daily->percent = "0,100";
+                }
             } else {
-
-                // if ($re->payer == 1) {
-                //     $daily->percent_per_one = 100;
-                //     $daily->percent_per_two = 0;
-                //     $daily->total_per_one = $re->total;
-                //     $daily->total_per_two = 0;
-                // } else {
-                //     $daily->percent_per_one = 0;
-                //     $daily->percent_per_two = 100;
-                //     $daily->total_per_two = $re->total;
-                //     $daily->total_per_one = 0;
-                // }
-                // $daily->is_together = 0;
                 $daily->category = null;
             }
 

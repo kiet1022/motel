@@ -270,9 +270,10 @@
                 $totalShow = 0;
                 foreach ($costs as $cost) {
                     foreach ($cost as $ct) {
+                        $percent = explode(",", $ct->percent);
                         $totalShow += $ct->total;
-                        $totalOne += $ct->total_per_one;
-                        $totalTwo += $ct->total_per_two;
+                        $totalOne += $ct->total * ($percent[0]/100);
+                        $totalTwo += $ct->total * ($percent[1]/100);
                     }
                 }
                 @endphp
@@ -330,8 +331,9 @@
                                 $ttTwo = 0;
                                 for ($i = 0; $i < count($cost); $i++){
                                     $total += $cost[$i]->total;
-                                    $ttOne += $cost[$i]->total_per_one;
-                                    $ttTwo += $cost[$i]->total_per_two;
+                                    $percent = explode(",", $cost[$i]->percent);
+                                    $ttOne += $cost[$i]->total * ($percent[0]/100);
+                                    $ttTwo += $cost[$i]->total * ($percent[1]/100);
                                 }
                                 @endphp
                                 <td style="font-weight: bold;" class="text-danger">{{ number_format($total) }} ₫</td>
@@ -492,10 +494,11 @@
                 html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total)+'</td>';
                 html += '<td>'+element.name+'</td>';
                 if (isTogether == 1) {
-                    html += '<td>'+element.percent_per_one+'%</td>';
-                    html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_one)+'</td>';
-                    html += '<td>'+element.percent_per_two+'%</td>';
-                    html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total_per_two)+'</td>';
+                    var percent = element.percent.split(",");
+                    html += '<td>'+percent[0]+'%</td>';
+                    html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total * percent[0]/100)+'</td>';
+                    html += '<td>'+percent[1]+'%</td>';
+                    html += '<td style="font-weight: bold;" class="text-danger">'+numberFormat(element.total * percent[1]/100)+'</td>';
                 }
                 
                 if (element.image) {
