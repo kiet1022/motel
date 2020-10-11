@@ -115,6 +115,7 @@ class AdminController extends Controller
 
     public function getEditDailyCostView($id,$together) {
         $this->data['oldCost'] = DailyCost::find($id);
+        $this->data['installments'] = Installment::with(['detail'])->get();
         // return $this->data;
         $this->data['users'] = User::all();
         $this->data['categories'] = Category::all();
@@ -122,7 +123,7 @@ class AdminController extends Controller
         return view('pages.admin.edit_daily_cost')->with($this->data);
     }
 
-    public function editDailyCost($id, Request $re) {
+    public function editDailyCost($id, AddDailyCostRequest $re) {
         try {
             DB::beginTransaction();
             $oldDaily = DailyCost::find($id);
@@ -130,28 +131,20 @@ class AdminController extends Controller
             $oldDaily->payer = $re->payer;
             $oldDaily->date = $re->date;
             $oldDaily->total = $re->total;
+            $oldDaily->percent = join(',', $re->percent);
+
             $togetherFlg = $re->is_together;
-            if ($togetherFlg == 1) {
-                $oldDaily->percent_per_one = $re->percent_per_one;
-                $oldDaily->percent_per_two = $re->percent_per_two;
-                $oldDaily->total_per_one = ($re->total * ($re->percent_per_one/100));
-                $oldDaily->total_per_two = ($re->total * ($re->percent_per_two/100));
-                $oldDaily->is_together = 1;
-                $oldDaily->category = null;
-            } else {
-                if ($re->payer == 1) {
-                    $oldDaily->percent_per_one = 100;
-                    $oldDaily->percent_per_two = 0;
-                    $oldDaily->total_per_one = $re->total;
-                    $oldDaily->total_per_two = 0;
-                } else {
-                    $oldDaily->percent_per_one = 0;
-                    $oldDaily->percent_per_two = 100;
-                    $oldDaily->total_per_two = $re->total;
-                    $oldDaily->total_per_one = 0;
-                }
-                $oldDaily->is_together = 0;
+            $oldDaily->is_together = $togetherFlg;
+
+            if ($togetherFlg == 0) {
                 $oldDaily->category = $re->category;
+                if ($re->payer == 1) {
+                    $oldDaily->percent = "100,0";
+                } else {
+                    $oldDaily->percent = "0,100";
+                }
+            } else {
+                $oldDaily->category = null;
             }
 
             $dltFlg = $re->img_dlt_flg;
@@ -177,11 +170,28 @@ class AdminController extends Controller
             }
 
             $oldDaily->save();
+
+            if($re->ins_detail_id) {
+                $insDetail = InstallmentDetail::find($re->ins_detail_id);
+                $insDetail->status = 1;
+
+                $installment = Installment::find($insDetail->installment_id);
+                if ($installment->waiting_amout != 0) {
+                    $installment->waiting_amout = $installment->waiting_amout - $insDetail->trans_amout;
+                } else {
+                    $installment->waiting_amout = $installment->trans_amout - $insDetail->trans_amout;
+                }
+
+                $insDetail->save();
+                $installment->save();
+            }
+
             DB::commit();
             return redirect()->back()->with('success','Cập nhật thành công!');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error','Cập nhật Thất bại!');
+            // return redirect()->back()->with('error','Cập nhật Thất bại!');
+            return redirect()->back()->with('error',$ex->getMessage());
         }
     }
 

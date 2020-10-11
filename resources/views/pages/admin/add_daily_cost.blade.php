@@ -229,7 +229,6 @@
         });
 
         $('#total').focus(function(){
-            debugger
             console.log($(this).val());
             $('#total').number(false);
         });
@@ -243,16 +242,12 @@
                 $('.percent').removeClass('d-none');
                 $('.category').addClass('d-none');
                 $('#category').attr('disabled',true);
-                $('#percent_per_one').prop('disabled', false);
-                $('#percent_per_two').prop('disabled', false);
                 $('.installment-detail').addClass('d-none');
                 $('.installment').addClass('d-none');
             } else {
                 $('.percent').addClass('d-none');
                 $('.category').removeClass('d-none');
                 $('#category').attr('disabled',false);
-                $('#percent_per_one').prop('disabled', true);
-                $('#percent_per_two').prop('disabled', true);
 
                 if ($('#category').val() == "6") {
                     if($('#installment').val() != "") {

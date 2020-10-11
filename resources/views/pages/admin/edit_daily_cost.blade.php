@@ -58,17 +58,47 @@
                         <div class="col-lg-6 form-group">
                             <label for="date">Ngày chi</label>
                             <input type="date" id="date" class="form-control" name="date" value="{{ $oldCost->date }}" required>
+                            {{-- error --}}
+                            @if ($errors->get('date'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('date') as $date)
+                                        <li>{{$date}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                         
                         <div class="col-lg-6 form-group">
                             <label for="payfor">Nội dung</label>
                             <input type="text" id="payfor" class="form-control" name="payfor" placeholder="Nhập nội dung" value="{{ $oldCost->payfor }}" required>
+                            {{-- error --}}
+                            @if ($errors->get('payfor'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('payfor') as $payfor)
+                                        <li>{{$payfor}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                         
                         <div class="col-lg-6 form-group">
                             <label for="total">Số tiền (vnđ)</label>
                             <input type="text" id="total" class="form-control" placeholder="Nhập số tiền đã chi" value="{{ $oldCost->total }}" required>
                             <input type="hidden" id="total_value" name="total" value="{{ $oldCost->total }}">
+                            {{-- error --}}
+                            @if ($errors->get('total'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('total') as $total)
+                                        <li>{{$total}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                         
                         <div class="col-lg-6 form-group">
@@ -102,7 +132,16 @@
                                 </label>
                             </div>
                         </div>
-
+                        {{-- error --}}
+                        @if ($errors->get('is_together'))
+                        <div class="cm-inline-form cm-error">
+                            <ul class="cm-ul-error" style="padding-left: 0px;">
+                            @foreach ($errors->get('is_together') as $is_together)
+                                <li>{{$is_together}}</li>
+                            @endforeach
+                            </ul>
+                        </div>
+                        @endif
                         <div class="col-lg-6 form-group category @if ($oldCost->category == null) d-none @endif">
                             <label for="category">Danh mục</label>
                             <select id="category" class="form-control" name="category">
@@ -114,7 +153,41 @@
                             </select>
                         </div>
 
+                        <div class="col-lg-6 form-group installment d-none">
+                            <label for="installment">Danh mục trả góp</label>
+                            <select id="installment" class="form-control">
+                                <option disabled selected>Chọn danh mục</option>
+                                @foreach ($installments as $ins)
+                                <option value="{{ $ins->id }}">
+                                    {{ $ins->details }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-6 form-group installment-detail d-none">
+                            <label for="installment-detail">Chọn kỳ thanh toán</label>
+                            <select id="installment-detail" class="form-control" name="ins_detail_id"></select>
+                        </div>
+
+                        @foreach ($users as $key => $user)
                         <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
+                            <label for="percent">Chia (%) {{explode(' ', $user->name)[2]}} </label>
+                            <input type="text" name="percent[]" class="percent-per-person form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ old('percent') ? old('percent')[$key] : explode(',',$oldCost->percent)[$key] }}" required>
+                        {{-- error --}}
+                            @if ($errors->get('percent'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('percent') as $percent)
+                                        <li>{{$percent}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+
+                        {{-- <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
                             <label for="percent_per_one">Chia (%) Kiệt </label>
                             <input type="text" id="percent_per_one" name="percent_per_one" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ $oldCost->percent_per_one }}" required @if($oldCost->is_together == 0) {{ "disabled" }}@endif>
                         </div>
@@ -122,7 +195,7 @@
                         <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
                             <label for="percent_per_two">Chia (%) Thạch</label>
                             <input type="text" id="percent_per_two" name="percent_per_two" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ $oldCost->percent_per_two }}" required @if($oldCost->is_together == 0) {{ "disabled" }}@endif>
-                        </div>
+                        </div> --}}
                         
                         <div class="col-lg-12">
                             <label for="image">Ảnh hóa đơn (nếu có)</label><br>
@@ -158,27 +231,24 @@
     $(document).ready(function(){
         blockUI(false);
         // Get current day
-        // var now = moment().format('YYYY-MM-DD');
+        var now = moment().format('YYYY-MM-DD');
         // $('#date').val(now);
         
         // Format currency
-        $('#total').number(true);
+        
         $('#total').change(function(){
+            
+            if ($(this).val().includes('k')) {
+                var value = $(this).val().replace('k','').concat('000');
+                $('#total').number(true);
+                $(this).val(value)
+            }
             $('#total_value').val($('#total').val());
         });
 
-        // Update value of percent_per_two when percent_per_one has changed
-        $('#percent_per_one').number(true);
-        $('#percent_per_one').change(function(ev){
-            $('#percent_per_two').val(100 - ev.target.value);
-            
-        });
-
-        //Update value of percent_per_two when percent_per_one has changed
-        $('#percent_per_two').number(true);
-        $('#percent_per_two').change(function(ev){
-            $('#percent_per_one').val(100 - ev.target.value);
-            
+        $('#total').focus(function(){
+            console.log($(this).val());
+            $('#total').number(false);
         });
 
         // Is person handle
@@ -189,17 +259,73 @@
             if (isTogether == 1) {
                 $('.percent').removeClass('d-none');
                 $('.category').addClass('d-none');
-                // $('.lbl-name').html('Chi tiêu chung');
-                $('#percent_per_one').prop('disabled', false);
-                $('#percent_per_two').prop('disabled', false);
+                $('#category').attr('disabled',true);
+                $('.installment-detail').addClass('d-none');
+                $('.installment').addClass('d-none');
             } else {
                 $('.percent').addClass('d-none');
                 $('.category').removeClass('d-none');
-                // $('.lbl-name').html('Chi tiêu cá nhân');
-                $('#percent_per_one').prop('disabled', true);
-                $('#percent_per_two').prop('disabled', true);
+                $('#category').attr('disabled',false);
+
+                if ($('#category').val() == "6") {
+                    if($('#installment').val() != "") {
+                        $('.installment-detail').removeClass('d-none');
+                        $('.installment').removeClass('d-none');
+                    } else {
+                        $('.installment').removeClass('d-none');
+                    }
+                }
             }
         });
+
+        $('#category').change(function() {
+            if($(this).val() == "6") {
+                $('.installment').removeClass('d-none')
+            } else {
+                $('.installment').addClass('d-none');
+                $('.installment-detail').addClass('d-none');
+            }
+        })
+        $('#installment').change(function() {
+            var id = $(this).val();
+            var url_detail = "{{ route('ajax-installment_details')}}";
+            $.ajax({
+                url: url_detail,
+                method: 'post',
+                data: {
+                    id: id
+                }
+            }).done(function(data) {
+                genInsDetailBlock(data.detail);
+            }).fail(function(xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            })
+            
+        })
+
+        function genInsDetailBlock(detail) {
+            html = '';
+            for (var i = 0; i < detail.length; i++) {
+                if (detail[i].status != 1) {
+                    var thisMonthSystem = moment(now).get('month');
+                    var thisMonth = moment(detail[i].pay_date).get('month');
+                    if(thisMonth > thisMonthSystem) {
+                        html += '<option value="' + detail[i].id + '" disabled>'+ moment(detail[i].pay_date).format('DD/MM/YYYY')+' - '+ numberFormat(detail[i].trans_amout)+' - '+'<span class="text-danger">Chưa đến hạn</span></option>'
+                    } else {
+                        html += '<option value="' + detail[i].id + '">'+ moment(detail[i].pay_date).format('DD/MM/YYYY')+' - '+ numberFormat(detail[i].trans_amout)+'</option>'
+                    }
+                }
+            }
+
+            $('#installment-detail').html(html);
+            $('.installment-detail').removeClass('d-none');
+        }
+
+        function numberFormat(number){
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        }
 
         $('#dlt_img').click(function(){
             $('.old_img').css('display','none');
