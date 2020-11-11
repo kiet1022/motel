@@ -16,7 +16,8 @@ Use App\Model\FixedCost;
 Use App\Model\User;
 
 Route::get('/', function(){
-    return redirect()->route('get_monthly_cost_view',['month'=>date('m'), 'year'=> date('Y')]);
+    return redirect()->route('get_dashboard');
+    // return redirect()->route('get_monthly_cost_view',['month'=>date('m'), 'year'=> date('Y')]);
 })->middleware('auth');
 
 Route::get('/log', 'Controller@getLogin')->name('login');
@@ -24,6 +25,14 @@ Route::post('/login', 'Controller@login')->name('post_login');
 Route::get('/logout', 'Controller@logout')->name('logout');
 
 Route::prefix('admin')->middleware('auth')->group(function(){
+
+    // DASHBOARD
+
+    Route::get('/dashboard', 'AdminController@getDashboard')->name('get_dashboard');
+    Route::post('/morning-coffee', 'AdminController@saveMorningCoffee')->name('save_morning_coffee');
+
+
+
     Route::get('fixedCostView', 'AdminController@getFixedCostView')->name('get_fixed_cost_view');
     Route::get('dailyCostView', 'AdminController@getDailyCostView')->name('get_daily_cost_view');
     Route::get('personalDailyCost','AdminController@personalDailyCost')->name('get_personal_daily_cost_view');
@@ -79,5 +88,21 @@ Route::get('/test', function () {
     // $user->email = "thach123@gmail.com";
     // $user->password = bcrypt("000000");
     // $user->save();
-    Mail::to('kiet1022@gmail.com')->send(new MailNotify());
+    // Mail::to('kiet1022@gmail.com')->send(new MailNotify());
+    session()->forget('coffee');
 });
+
+Route::post('test-ocr', function(Request $re){
+    if($re->hasFile('image')){
+        $file = $re->file('image');
+        $duoi = $file->getClientOriginalExtension();
+        $name = $file->getClientOriginalName();
+        $img = str_random(4)."_".$name;
+        // while (file_exists("img/".$oldDaily->image)) {
+        //     if ($oldDaily->image != null) {
+        //         unlink("img/".$oldDaily->image);
+        //     }
+        // }
+        return $img;
+    }
+})->name('test_ocr');

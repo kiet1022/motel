@@ -192,7 +192,7 @@
                             <label for="image">Ảnh hóa đơn (nếu có)</label>
                             <input type="file" id="image" class="form-control" name="image">
                         </div>
-                        
+
                         <div class="col-lg-12 text-center mt-3">
                             <button type="reset" class="btn btn-primary cm-btn">Nhập lại</button>
                             <button type="button" class="btn btn-primary cm-btn" id="btn-submit">Lưu</button>
@@ -291,8 +291,8 @@
             html = '';
             for (var i = 0; i < detail.length; i++) {
                 if (detail[i].status != 1) {
-                    var thisMonthSystem = moment(now).get('month');
-                    var thisMonth = moment(detail[i].pay_date).get('month');
+                    var thisMonthSystem = moment(now);
+                    var thisMonth = moment(detail[i].pay_date);
                     if(thisMonth > thisMonthSystem) {
                         html += '<option value="' + detail[i].id + '" disabled>'+ moment(detail[i].pay_date).format('DD/MM/YYYY')+' - '+ numberFormat(detail[i].trans_amout)+' - '+'<span class="text-danger">Chưa đến hạn</span></option>'
                     } else {

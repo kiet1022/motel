@@ -158,11 +158,11 @@
                                             <tr>
                                                 <td>{{ $installment->details}}</td>
                                                 <td>{{ showDateInDMY($installment->trans_date) }}</td>
-                                                <td>{{ number_format($installment->trans_amout)}} ₫</td>
+                                                <td class="text-danger">{{ number_format($installment->trans_amout)}} ₫</td>
                                                 <td>{{ $installment->cycle}} Tháng</td>
                                                 <td>{{ showDateInDMY($installment->start_date) }} - {{ showDateInDMY($installment->due_date)}}</td>
-                                                <td>{{ number_format($installment->trans_amout - $installment->waiting_amout)}} ₫</td>
-                                                <td>{{ number_format($installment->waiting_amout)}} ₫</td>
+                                                <td class="text-success">{{ number_format($installment->trans_amout - $installment->waiting_amout)}} ₫</td>
+                                                <td>{{ number_format($installment->waiting_amout > 0 ? $installment->waiting_amout : 0)}} ₫</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -185,9 +185,9 @@
                                                 <td>Lần {{ $index + 1}}</td>
                                                 <td>{{ showDateInDMY($detail->pay_date) }}</td>
                                                 <td>{{ number_format($cost_per_month)}} ₫</td>
-                                                <td class="text-center">{!! showInstallmentStatus($detail->status) !!}</td>
+                                                <td class="text-center">{!! showInstallmentStatus($detail) !!}</td>
                                                 <td class="text-center">
-                                                    @if ($detail->status == 0)
+                                                    @if ($detail->status == 0 && strtotime($detail->pay_date) <= strtotime(date('Y-m-d')))
                                                         <a href="{{ route('checkout_installment',['id'=>$installment->id,'detail'=>$detail->id]) }}" class="btn btn-primary btn-sm checkout">Thanh toán</a>
                                                     @endif
                                                 </td>

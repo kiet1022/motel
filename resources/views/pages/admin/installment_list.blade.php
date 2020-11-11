@@ -152,12 +152,12 @@
                                             <tr>
                                                 <td>{{ $installment->details}}</td>
                                                 <td>{{ showDateInDMY($installment->trans_date) }}</td>
-                                                <td>{{ number_format($installment->trans_amout)}} ₫</td>
+                                                <td class="text-danger">{{ number_format($installment->trans_amout)}} ₫</td>
                                                 <td>{{ $installment->cycle}} Tháng</td>
                                                 <td>{{ showDateInDMY($installment->start_date) }} - {{ showDateInDMY($installment->due_date)}}</td>
                                                 <td><span class="text-success">{{ number_format($installment->trans_amout - $installment->waiting_amout)}} ₫</span></td>
-                                                <td><span class="text-danger">{{ number_format($installment->waiting_amout)}} ₫</span></td>
-                                                <td><a href="{{ route('installment_details',['id' => $installment->id])}}" class="btn btn-primary btn-sm">Xem</a></td>
+                                                <td><span class="text-danger">{{ number_format($installment->waiting_amout > 0 ? $installment->waiting_amout : 0)}} ₫</span></td>
+                                                <td class="text-center"><a href="{{ route('installment_details',['id' => $installment->id])}}" class="btn btn-primary btn-sm">Xem</a></td>
                                             </tr>
                                             @endforeach
                                         </tbody>

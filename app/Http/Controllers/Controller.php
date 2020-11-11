@@ -23,7 +23,7 @@ class Controller extends BaseController
         $login = $re->only('email','password');
 
         if(Auth::attempt($login,$remember)){
-            return redirect()->route('get_monthly_cost_view',['month'=>date('m'), 'year'=> date('Y')]);
+            return redirect()->route('get_dashboard');
         }else{
             return redirect()->back()->with('error','Email hoặc mật khẩu không đúng');
         }

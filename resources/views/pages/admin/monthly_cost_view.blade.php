@@ -502,7 +502,11 @@
                 }
                 
                 if (element.image) {
-                    html += '<td><a class="btn btn-primary btn-sm" href="../../../img/'+element.image+'" target="_blank">Xem</a></td>';
+                    if (element.image == "removed") {
+                        html += '<td class="text-center"><span class="badge badge-warning">Hoá đơn đã được xoá</span></td>';
+                    } else {
+                        html += '<td><a class="btn btn-primary btn-sm" href="../../../img/'+element.image+'" target="_blank">Xem</a></td>';
+                    }
                 } else {
                     html += '<td></td>';
                 }

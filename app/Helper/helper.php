@@ -37,10 +37,13 @@
     }
 
     if (! function_exists('showInstallmentStatus')) {
-        function showInstallmentStatus($status){
+        function showInstallmentStatus($detail){
             $result = '<span class="badge badge-danger">Chưa thanh toán</span>';
-
-            $result = $status == 1 ? '<span class="badge badge-success">Đã thanh toán</span>' : $result;
+            if ($detail->status == 1){
+                $result = '<span class="badge badge-success">Đã thanh toán</span>';
+            } else if ($detail->status == 0 && strtotime($detail->pay_date) > strtotime(date('Y-m-d'))) {
+                $result = '<span class="badge badge-warning">Chưa đến hạn thanh toán</span>';
+            }
             
             return $result;
         }

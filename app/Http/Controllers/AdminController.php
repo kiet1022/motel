@@ -24,6 +24,53 @@ Use App\Http\Requests\AddDailyCostRequest;
 
 class AdminController extends Controller
 {
+
+    public function getDashboard(){
+        $date = date("Y-m-d");
+        $this->data['coffee'] = DB::table('daily_costs')
+                                    ->whereRaw(DB::raw("payfor like '%cà phê sáng%' AND date = '$date'"))
+                                    ->select('daily_costs.*')->count();
+        if($this->data['coffee'] == 1) {
+            return view('pages.admin.dashboard')->with($this->data);
+        } else {
+            if (session('coffee') == 1) {
+                $this->data['coffee'] =  1;
+            }
+        }
+        return view('pages.admin.dashboard')->with($this->data);
+    }
+
+    public function saveMorningCoffee(Request $re){
+        if ($re->flg == 1) {
+            try {
+                DB::beginTransaction();
+                $daily = new DailyCost;
+                $daily->payfor = "Cà phê sáng";
+                $daily->payer = Auth::user()->id;
+                $daily->date = date('Y-m-d');
+                $daily->total = 15000;
+                $daily->is_together = 0;
+                $daily->category = 1;
+                if (Auth::user()->id == 1) {
+                    $daily->percent = "100,0";
+                } else {
+                    $daily->percent = "0,100";
+                }
+                $daily->save();
+                $re->session()->put('coffee', 1);
+                DB::commit();
+                return redirect()->route('get_dashboard');
+            } catch (Exception $ex) {
+                DB::rollback();
+                $re->session()->put('coffee',0);
+                return redirect()->route('get_dashboard');
+            }
+        } else {
+            $re->session()->put('coffee', 1);
+            return redirect()->route('get_dashboard');
+        }
+    }
+
     public function getFixedCostView() {
         $this->data['costs'] = FixedCost::all();
         return view('pages.admin.fixed_cost_view')->with($this->data);
@@ -222,10 +269,7 @@ class AdminController extends Controller
             $roomfee->payer = Auth::user()->id;
             $roomfee->date = $re->date;
             $roomfee->total = $re->room_fee;
-            $roomfee->percent_per_one = 50;
-            $roomfee->percent_per_two = 50;
-            $roomfee->total_per_one = $re->room_fee / 2;
-            $roomfee->total_per_two = $re->room_fee / 2;
+            $roomfee->percent = "50,50";
             $roomfee->is_together = 1;
 
             if($re->hasFile('image')){
@@ -246,10 +290,7 @@ class AdminController extends Controller
             $waterfee->payer = Auth::user()->id;
             $waterfee->date = $re->date;
             $waterfee->total = $re->water_fee;
-            $waterfee->percent_per_one = 50;
-            $waterfee->percent_per_two = 50;
-            $waterfee->total_per_one = $re->water_fee / 2;
-            $waterfee->total_per_two = $re->water_fee / 2;
+            $waterfee->percent = "50,50";
             $waterfee->is_together = 1;
             $waterfee->save();
 
@@ -259,10 +300,7 @@ class AdminController extends Controller
             $trashfee->payer = Auth::user()->id;
             $trashfee->date = $re->date;
             $trashfee->total = $re->trash_fee;
-            $trashfee->percent_per_one = 50;
-            $trashfee->percent_per_two = 50;
-            $trashfee->total_per_one = $re->trash_fee / 2;
-            $trashfee->total_per_two = $re->trash_fee / 2;
+            $trashfee->percent = "50,50";
             $trashfee->is_together = 1;
             $trashfee->save();
 
@@ -272,10 +310,7 @@ class AdminController extends Controller
             $elefee->payer = Auth::user()->id;
             $elefee->date = $re->date;
             $elefee->total = $re->ele_fee;
-            $elefee->percent_per_one = 50;
-            $elefee->percent_per_two = 50;
-            $elefee->total_per_one = $re->ele_fee / 2;
-            $elefee->total_per_two = $re->ele_fee / 2;
+            $elefee->percent = "50,50";
             $elefee->is_together = 1;
             $elefee->save();
 
@@ -389,7 +424,7 @@ class AdminController extends Controller
         $costs = DB::table('daily_costs')
         ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
         ->join('users','daily_costs.payer','=','users.id')
-        ->selectRaw('sum(daily_costs.total_per_one) AS total_per_one, sum(daily_costs.total_per_two) AS total_per_two')
+        ->selectRaw('sum(daily_costs.total / 2) AS total_per_two')
         ->get();
 
         $ele_cost = DB::table('daily_costs')
@@ -403,7 +438,7 @@ class AdminController extends Controller
         );
 
         Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt'));
-        Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
+        Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch')); 
 
         // update notify status
         $managers = StorageManager::find($id);
@@ -500,17 +535,13 @@ class AdminController extends Controller
             $daily->date = $details->pay_date;
             $daily->total = $details->trans_amout;
             $daily->is_together = 0;
+
             if (Auth::user()->id == 1) {
-                $daily->percent_per_one = 100;
-                $daily->percent_per_two = 0;
-                $daily->total_per_one = $details->trans_amout;
-                $daily->total_per_two = 0;
+                $daily->percent = "100,0";
             } else {
-                $daily->percent_per_one = 0;
-                $daily->percent_per_two = 100;
-                $daily->total_per_two = $details->trans_amout;
-                $daily->total_per_one = 0;
+                $daily->percent = "0,100";
             }
+            
             $daily->category = 6;
             $daily->save();
 
@@ -601,11 +632,14 @@ class AdminController extends Controller
             $length = count($images);
             $count = 0;
             for($i=0; $i<$length; $i++) {
-                if($images[$i]->image !== null) {
+                if($images[$i]->image != null) {
                     $path = "img/".$images[$i]->image;
                     if(file_exists($path)){
                         unlink($path);
                         $count++;
+                        $old = DailyCost::find($images[$i]->id);
+                        $old->image = "removed";
+                        $old->save();
                     }
                 }
             }
