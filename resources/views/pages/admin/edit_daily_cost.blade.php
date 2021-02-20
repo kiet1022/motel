@@ -170,11 +170,11 @@
                             <select id="installment-detail" class="form-control" name="ins_detail_id"></select>
                         </div>
 
-                        @foreach ($users as $key => $user)
+                        {{--@foreach ($users as $key => $user)
                         <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
                             <label for="percent">Chia (%) {{explode(' ', $user->name)[2]}} </label>
                             <input type="text" name="percent[]" class="percent-per-person form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ old('percent') ? old('percent')[$key] : explode(',',$oldCost->percent)[$key] }}" required>
-                        {{-- error --}}
+
                             @if ($errors->get('percent'))
                                 <div class="cm-inline-form cm-error">
                                     <ul class="cm-ul-error" style="padding-left: 0px;">
@@ -185,8 +185,50 @@
                                 </div>
                             @endif
                         </div>
-                    @endforeach
+                    @endforeach --}}
+                        @foreach ($users as $key => $user)
+                            <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
+                                <div class="form-check">
+                                    <input type="checkbox" name="devided[]" class="form-check-input" value="{{ $user->id }}" @if (in_array($user->id, $details_id)) checked @endif>
+                                    <label class="form-check-label" for="percent">Chia {{explode(' ', $user->name)[2]}} </label>
+                                </div>
+                                
+                                {{-- <input type="text" name="percent[]" class="percent-per-person form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ old('percent') ? old('percent')[$key] : '25' }}" required> --}}
 
+                                {{-- error --}}
+                                @if ($errors->get('percent'))
+                                    <div class="cm-inline-form cm-error">
+                                        <ul class="cm-ul-error" style="padding-left: 0px;">
+                                        @foreach ($errors->get('percent') as $percent)
+                                            <li>{{$percent}}</li>
+                                        @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                        <div class="col-lg-12 percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="devided-more" name="devided_more" @if (in_array(0, $details_id)) value="1" checked @endif>
+                                <label class="form-check-label" for="percent">Chia thêm </label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 form-group devided @if (!in_array(0, $details_id)) d-none @endif">
+                            <label for="name" class="mb-2 mr-sm-2">Tên</label>
+                            <input type="text" id="name" class="form-control mb-2 mr-sm-2" placeholder="Nhập tên (cách nhau bởi dấu cách)" name="name" @if (in_array(0, $details_id)) value="{{join(' ', $details_name)}}" @endif>
+                            
+                            {{-- error --}}
+                            @if ($errors->get('total'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('total') as $total)
+                                        <li>{{$total}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
                         {{-- <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
                             <label for="percent_per_one">Chia (%) Kiệt </label>
                             <input type="text" id="percent_per_one" name="percent_per_one" class="form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ $oldCost->percent_per_one }}" required @if($oldCost->is_together == 0) {{ "disabled" }}@endif>
@@ -232,12 +274,13 @@
         blockUI(false);
         // Get current day
         var now = moment().format('YYYY-MM-DD');
+        // $('#total').number(true);
         // $('#date').val(now);
         
         // Format currency
         
         $('#total').change(function(){
-            
+            $('#total').number(false);
             if ($(this).val().includes('k')) {
                 var value = $(this).val().replace('k','').concat('000');
                 $('#total').number(true);
@@ -337,6 +380,15 @@
             $('#total_value').val($('#total').val());
             $("form").submit();
         });
+
+        $('#devided-more').on('change', function(e){
+            if ($(this).is(':checked')){
+                $('.devided').removeClass('d-none')
+                $('#devided-more').val('1');
+            } else {
+                $('#devided-more').val('0');
+            }
+        })
     });
 </script>
 @endsection

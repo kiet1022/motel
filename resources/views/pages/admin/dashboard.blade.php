@@ -77,7 +77,7 @@
                                     <div class="text-center text-light motivation">
                                         <h4 id="text">I am John Doe</h4>
                                         <p id="author">Mr ABC</p>
-                                        <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['together'=>0]) }}">Thêm chi tiêu</a>
+                                        <a class="btn btn-success btn-sm" href="{{ route('get_add_daily_cost_view',['together'=>1]) }}">Thêm chi tiêu</a>
                                     </div>
                                     
                                 </div>

@@ -6,31 +6,36 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Crypt;
 use App\Mail\MailNotify;
 use Exception;
 /* Model Import */
-Use App\Model\User;
-Use App\Model\FixedCost;
-Use App\Model\DailyCost;
-Use App\Model\Category;
-Use App\Model\Installment;
-Use App\Model\InstallmentDetail;
-Use App\Model\StorageManager;
-Use App\Model\Balance;
+use App\Model\User;
+use App\Model\FixedCost;
+use App\Model\DailyCost;
+use App\Model\DailyCostDetail;
+use App\Model\Category;
+use App\Model\Installment;
+use App\Model\InstallmentDetail;
+use App\Model\StorageManager;
+use App\Model\Balance;
+use App\Model\AccountManager;
 
 /* Request Import */
-Use App\Http\Requests\BalanceRequest;
-Use App\Http\Requests\AddDailyCostRequest;
+use App\Http\Requests\BalanceRequest;
+use App\Http\Requests\AddDailyCostRequest;
+
 
 class AdminController extends Controller
 {
 
-    public function getDashboard(){
+    public function getDashboard()
+    {
         $date = date("Y-m-d");
         $this->data['coffee'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw("payfor like '%cà phê sáng%' AND date = '$date'"))
-                                    ->select('daily_costs.*')->count();
-        if($this->data['coffee'] == 1) {
+            ->whereRaw(DB::raw("payfor like '%cà phê sáng%' AND date = '$date'"))
+            ->select('daily_costs.*')->count();
+        if ($this->data['coffee'] == 1) {
             return view('pages.admin.dashboard')->with($this->data);
         } else {
             if (session('coffee') == 1) {
@@ -40,7 +45,8 @@ class AdminController extends Controller
         return view('pages.admin.dashboard')->with($this->data);
     }
 
-    public function saveMorningCoffee(Request $re){
+    public function saveMorningCoffee(Request $re)
+    {
         if ($re->flg == 1) {
             try {
                 DB::beginTransaction();
@@ -62,7 +68,7 @@ class AdminController extends Controller
                 return redirect()->route('get_dashboard');
             } catch (Exception $ex) {
                 DB::rollback();
-                $re->session()->put('coffee',0);
+                $re->session()->put('coffee', 0);
                 return redirect()->route('get_dashboard');
             }
         } else {
@@ -71,34 +77,39 @@ class AdminController extends Controller
         }
     }
 
-    public function getFixedCostView() {
+    public function getFixedCostView()
+    {
         $this->data['costs'] = FixedCost::all();
         return view('pages.admin.fixed_cost_view')->with($this->data);
     }
 
-    public function getDailyCostView() {
+    public function getDailyCostView()
+    {
         $this->data['month'] = date('m');
         $this->data['year'] = date('Y');
-        $this->data['together'] = config('constants.COST_TYPE.TOGETHER');
+        $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.$this->data['year'].' and deleted_at is null and daily_costs.is_together = '.config('constants.COST_TYPE.TOGETHER')))
-                                    ->join('users','daily_costs.payer','=','users.id')
-                                    ->select('daily_costs.*','users.name')
-                                    ->get();
+            ->whereRaw(DB::raw('MONTH(date) = ' . $this->data['month'] . ' and YEAR(date) = ' . $this->data['year'] . ' and deleted_at is null and daily_costs.is_together = ' . config('constants.COST_TYPE.TOGETHER')))
+            ->join('users', 'daily_costs.payer', '=', 'users.id')
+            ->select('daily_costs.*', 'users.name')
+            ->get();
 
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function getAddDailyCostView($together) {
+    public function getAddDailyCostView($together)
+    {
         $this->data['users'] = User::all();
         $this->data['categories'] = Category::all();
         $this->data['installments'] = Installment::with(['detail'])->get();
         // $this->data['ins_details'] = InstallmentDetail::all();
         $this->data['together'] = $together;
+
         return view('pages.admin.add_daily_cost')->with($this->data);
     }
 
-    public function addDailyCost(AddDailyCostRequest $re) {
+    public function addDailyCost(AddDailyCostRequest $re)
+    {
         try {
             DB::beginTransaction();
             $daily = new DailyCost;
@@ -106,36 +117,64 @@ class AdminController extends Controller
             $daily->payer = $re->payer;
             $daily->date = $re->date;
             $daily->total = $re->total;
-            $daily->percent = join(',', $re->percent);
+            // $daily->percent = join(',', $re->percent);
+
 
             $togetherFlg = $re->is_together;
             $daily->is_together = $togetherFlg;
 
             if ($togetherFlg == 0) {
                 $daily->category = $re->category;
-                if ($re->payer == 1) {
-                    $daily->percent = "100,0";
-                } else {
-                    $daily->percent = "0,100";
-                }
+                // if ($re->payer == 1) {
+                //     $daily->percent = "100,0";
+                // } else {
+                //     $daily->percent = "0,100";
+                // }
             } else {
                 $daily->category = null;
             }
 
-            if($re->hasFile('image')){
+            if ($re->hasFile('image')) {
                 $file = $re->file('image');
                 $name = $file->getClientOriginalName();
-                $img = str_random(4)."_".$name;
-                while (file_exists("img/".$img)) {
-                $img = str_random(4)."_".$name;
+                $img = str_random(4) . "_" . $name;
+                while (file_exists("img/" . $img)) {
+                    $img = str_random(4) . "_" . $name;
                 }
-                $file->move("img",$img);
+                $file->move("img", $img);
                 $daily->image = $img;
             }
 
             $daily->save();
 
-            if($re->ins_detail_id) {
+            // Handle detail cost
+            $totalPerson = count($re->devided) + ($re->devided_more != 0 ? count(explode(" ", trim($re->name))) : 0);
+            $costPerPerson = $re->total / $totalPerson;
+
+
+            foreach ($re->devided as $devided) {
+                $dailyDetail = new DailyCostDetail;
+                $dailyDetail->daily_cost_id = $daily->id;
+                $dailyDetail->user_id = $devided;
+                $dailyDetail->name = "";
+                $dailyDetail->cost = $costPerPerson;
+                $dailyDetail->save();
+            }
+            // Get name of another people
+
+            if ($re->devided_more != 0) {
+                $arrName = explode(" ", trim($re->name));
+                foreach ($arrName as $name) {
+                    $dailyDetail = new DailyCostDetail;
+                    $dailyDetail->daily_cost_id = $daily->id;
+                    $dailyDetail->user_id = 0;
+                    $dailyDetail->name = $name;
+                    $dailyDetail->cost = $costPerPerson;
+                    $dailyDetail->save();
+                }
+            }
+
+            if ($re->ins_detail_id) {
                 // $insDetail = InstallmentDetail::with(['installment'])->where('id',$re->ins_detail_id)->get();
                 $insDetail = InstallmentDetail::find($re->ins_detail_id);
                 $insDetail->status = 1;
@@ -152,25 +191,39 @@ class AdminController extends Controller
             }
 
             DB::commit();
-            return redirect()->back()->with('success','Thêm thành công!');
+            return redirect()->back()->with('success', 'Thêm thành công!');
         } catch (Exception $ex) {
             DB::rollback();
             // return redirect()->back()->with('error','Thêm Thất bại!');
-            return redirect()->back()->with('error',$ex->getMessage());
+            return redirect()->back()->with('error', $ex->getMessage());
         }
     }
 
-    public function getEditDailyCostView($id,$together) {
+    public function getEditDailyCostView($id, $together)
+    {
         $this->data['oldCost'] = DailyCost::find($id);
-        $this->data['installments'] = Installment::with(['detail'])->get();
+        $this->data['details_id'] = [];
+        $this->data['details_name'] = [];
+
+        foreach ($this->data['oldCost']->details as $key => $value) {
+            array_push($this->data['details_id'], $value->user_id);
+            if ($value->user_id == 0) {
+                array_push($this->data['details_name'], $value->name);
+            }
+        }
+
         // return $this->data;
+        $this->data['installments'] = Installment::with(['detail'])->get();
+
         $this->data['users'] = User::all();
         $this->data['categories'] = Category::all();
         $this->data['together'] = $together;
+        // return $this->data;
         return view('pages.admin.edit_daily_cost')->with($this->data);
     }
 
-    public function editDailyCost($id, AddDailyCostRequest $re) {
+    public function editDailyCost($id, AddDailyCostRequest $re)
+    {
         try {
             DB::beginTransaction();
             $oldDaily = DailyCost::find($id);
@@ -195,17 +248,17 @@ class AdminController extends Controller
             }
 
             $dltFlg = $re->img_dlt_flg;
-            if($re->hasFile('image')){
+            if ($re->hasFile('image')) {
                 $file = $re->file('image');
                 $duoi = $file->getClientOriginalExtension();
                 $name = $file->getClientOriginalName();
-                $img = str_random(4)."_".$name;
+                $img = str_random(4) . "_" . $name;
                 // while (file_exists("img/".$oldDaily->image)) {
                 //     if ($oldDaily->image != null) {
                 //         unlink("img/".$oldDaily->image);
                 //     }
                 // }
-                $file->move("img",$img);
+                $file->move("img", $img);
                 $oldDaily->image = $img;
             } else {
                 if ($dltFlg) {
@@ -218,7 +271,7 @@ class AdminController extends Controller
 
             $oldDaily->save();
 
-            if($re->ins_detail_id) {
+            if ($re->ins_detail_id) {
                 $insDetail = InstallmentDetail::find($re->ins_detail_id);
                 $insDetail->status = 1;
 
@@ -234,33 +287,38 @@ class AdminController extends Controller
             }
 
             DB::commit();
-            return redirect()->back()->with('success','Cập nhật thành công!');
+            return redirect()->back()->with('success', 'Cập nhật thành công!');
         } catch (Exception $ex) {
             DB::rollback();
             // return redirect()->back()->with('error','Cập nhật Thất bại!');
-            return redirect()->back()->with('error',$ex->getMessage());
+            return redirect()->back()->with('error', $ex->getMessage());
         }
     }
 
-    public function deleteDailyCost($id) {
+    public function deleteDailyCost($id)
+    {
         try {
             DB::beginTransaction();
             $cost = DailyCost::find($id);
+            $details = DailyCostDetail::where('daily_cost_id', $id);
             $cost->delete();
+            $details->delete();
             DB::commit();
-            return redirect()->back()->with('success','Xóa thành công!');
+            return redirect()->back()->with('success', 'Xóa thành công!');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error','Xóa Thất bại!');
+            return redirect()->back()->with('error', 'Xóa Thất bại!');
         }
     }
 
-    public function getAddFixedCostView(){
+    public function getAddFixedCostView()
+    {
         $this->data['month'] = date('m');
         return view('pages.admin.add_fixed_cost')->with($this->data);
     }
 
-    public function AddFixedCost(Request $re) {
+    public function AddFixedCost(Request $re)
+    {
         try {
             DB::beginTransaction();
             // Room fee
@@ -272,14 +330,14 @@ class AdminController extends Controller
             $roomfee->percent = "50,50";
             $roomfee->is_together = 1;
 
-            if($re->hasFile('image')){
+            if ($re->hasFile('image')) {
                 $file = $re->file('image');
                 $name = $file->getClientOriginalName();
-                $img = str_random(4)."_".$name;
-                while (file_exists("img/".$img)) {
-                $img = str_random(4)."_".$name;
+                $img = str_random(4) . "_" . $name;
+                while (file_exists("img/" . $img)) {
+                    $img = str_random(4) . "_" . $name;
                 }
-                $file->move("img",$img);
+                $file->move("img", $img);
                 $roomfee->image = $img;
             }
             $roomfee->save();
@@ -315,62 +373,60 @@ class AdminController extends Controller
             $elefee->save();
 
             DB::commit();
-            return redirect()->back()->with('success','Thêm thành công!');
+            return redirect()->back()->with('success', 'Thêm thành công!');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error','Thêm Thất bại!');
+            return redirect()->back()->with('error', 'Thêm Thất bại!');
         }
     }
 
-    public function personalDailyCost() {
+    public function personalDailyCost()
+    {
         $this->data['month'] = date('m');
         $this->data['year'] = date('Y');
         $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
 
-        $condition = DB::raw('MONTH(date) = '.$this->data['month'].' and YEAR(date) = '.
-        $this->data['year'].' and deleted_at is null and payer = '.
-        Auth::user()->id.' and daily_costs.is_together = 0');
+        $condition = DB::raw('MONTH(date) = ' . $this->data['month'] . ' and YEAR(date) = ' .
+            $this->data['year'] . ' and deleted_at is null and payer = ' .
+            Auth::user()->id . ' and daily_costs.is_together = 0');
 
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw($condition)
-                                    ->join('users','daily_costs.payer','=','users.id')
-                                    ->select('daily_costs.*','users.name')
-                                    ->get();
+            ->whereRaw($condition)
+            ->join('users', 'daily_costs.payer', '=', 'users.id')
+            ->select('daily_costs.*', 'users.name')
+            ->get();
 
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function getMonthlyCostView($month = 6, $year = 2020) {
-        $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw(DB::raw('MONTH(date) = '.
-                                    $month.' and YEAR(date) = '.
-                                    $year.' and payer = '.Auth::user()->id.
-                                    ' and deleted_at is null and daily_costs.is_together = 0'))
-                                    ->join('users','daily_costs.payer','=','users.id')
-                                    ->select('daily_costs.*','users.name')
-                                    ->get();
+    public function getMonthlyCostView($month = 6, $year = 2020)
+    {
+        $this->data['costs'] = DailyCost::with('details')->whereRaw('MONTH(date) = ' .
+            $month . ' and YEAR(date) = ' .
+            $year . ' and daily_costs.deleted_at is null and daily_costs.is_together = 1')
+            ->join('users', 'daily_costs.payer', '=', 'users.id')
+            ->select('daily_costs.*', 'users.name')
+            ->get();
+
         $this->data['costs'] = $this->data['costs']->groupBy('date');
         $this->data['costs']->toJson();
         $this->data['categories'] = Category::all();
         $this->data['month'] = $month;
         $this->data['year'] = $year;
-        $this->data['together'] = config('constants.COST_TYPE.PERSONAL');
+        $this->data['together'] = config('constants.COST_TYPE.TOGETHER');
         $this->data['users'] = User::all();
 
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
-    public function filterMonthlyCost(Request $re) {
-        $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null');
+    public function filterMonthlyCost(Request $re)
+    {
+        $condition = DB::raw('MONTH(date) = ' . $re->month . ' and YEAR(date) = ' . $re->year . ' and deleted_at is null');
 
         if ($re->together == config('constants.COST_TYPE.TOGETHER')) {
             $condition .= DB::raw(' and daily_costs.is_together = 1');
         } else if ($re->together == config('constants.COST_TYPE.PERSONAL')) {
-            if (Auth::user()->id == 1) {
-                $condition .= DB::raw(' and daily_costs.is_together = 0 AND daily_costs.payer = '.Auth::user()->id);
-            } else if (Auth::user()->id == 2) {
-                $condition .= DB::raw(' and daily_costs.is_together = 0 AND daily_costs.payer = '.Auth::user()->id);
-            }
+            $condition .= DB::raw(' and daily_costs.is_together = 0 AND daily_costs.payer = ' . Auth::user()->id);
         }
 
         if ($re->keyword) {
@@ -382,10 +438,10 @@ class AdminController extends Controller
         }
 
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw($condition)
-                                    ->join('users','daily_costs.payer','=','users.id')
-                                    ->select('daily_costs.*','users.name')
-                                    ->get();
+            ->whereRaw($condition)
+            ->join('users', 'daily_costs.payer', '=', 'users.id')
+            ->select('daily_costs.*', 'users.name')
+            ->get();
 
         $this->data['costs'] = $this->data['costs']->groupBy('date');
         $this->data['costs']->toJson();
@@ -395,72 +451,78 @@ class AdminController extends Controller
         $this->data['together'] = $re->together;
 
         $re->flash();
+
         return view('pages.admin.monthly_cost_view')->with($this->data);
     }
 
-    public function filterDailyCost(Request $re) {
+    public function filterDailyCost(Request $re)
+    {
 
-        $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null and daily_costs.is_together = 1');
+        $condition = DB::raw('MONTH(date) = ' . $re->month . ' and YEAR(date) = ' . $re->year . ' and deleted_at is null and daily_costs.is_together = 1');
 
         if ($re->together == config('constants.COST_TYPE.PERSONAL')) {
-            $condition = DB::raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and deleted_at is null and daily_costs.is_together = 0 and daily_costs.payer = '.Auth::user()->id);
+            $condition = DB::raw('MONTH(date) = ' . $re->month . ' and YEAR(date) = ' . $re->year . ' and deleted_at is null and daily_costs.is_together = 0 and daily_costs.payer = ' . Auth::user()->id);
         }
 
         $this->data['costs'] = DB::table('daily_costs')
-                                    ->whereRaw($condition)
-                                    ->join('users','daily_costs.payer','=','users.id')
-                                    ->select('daily_costs.*','users.name')
-                                    ->orderBy('id', 'desc')
-                                    ->get();
+            ->whereRaw($condition)
+            ->join('users', 'daily_costs.payer', '=', 'users.id')
+            ->select('daily_costs.*', 'users.name')
+            ->orderBy('id', 'desc')
+            ->get();
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
         $this->data['together'] = $re->together;
         return view('pages.admin.daily_cost_view')->with($this->data);
     }
 
-    public function sendMail($month, $id) {
+    public function sendMail($month, $id)
+    {
         try {
 
-        $costs = DB::table('daily_costs')
-        ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
-        ->join('users','daily_costs.payer','=','users.id')
-        ->selectRaw('sum(daily_costs.total / 2) AS total_per_two')
-        ->get();
+            $costs = DB::table('daily_costs')
+                ->whereRaw(DB::raw('MONTH(date) = ' . $month . ' and YEAR(date) = ' . date('Y') . ' and deleted_at is null and daily_costs.is_together = 1'))
+                ->join('users', 'daily_costs.payer', '=', 'users.id')
+                ->selectRaw('sum(daily_costs.total / 2) AS total_per_two')
+                ->get();
 
-        $ele_cost = DB::table('daily_costs')
-        ->whereRaw(DB::raw('MONTH(date) = '.$month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
-        ->select(['total','payfor'])->where('daily_costs.payfor','like','%tiền điện%')->get();
+            $ele_cost = DB::table('daily_costs')
+                ->whereRaw(DB::raw('MONTH(date) = ' . $month . ' and YEAR(date) = ' . date('Y') . ' and deleted_at is null and daily_costs.is_together = 1'))
+                ->select(['total', 'payfor'])->where('daily_costs.payfor', 'like', '%tiền điện%')->get();
 
-        $data = array(
-            'total' => $costs[0]->total_per_two,
-            'ele_cost_name' => $ele_cost[0]->payfor,
-            'ele_cost_value' => $ele_cost[0]->total
-        );
+            $data = array(
+                'total' => $costs[0]->total_per_two,
+                'ele_cost_name' => $ele_cost[0]->payfor,
+                'ele_cost_value' => $ele_cost[0]->total
+            );
 
-        Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt'));
-        Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch')); 
+            Mail::to('kiet1022@gmail.com')->send(new MailNotify($data, 'Dương Tuấn Kiệt'));
+            Mail::to('hoangthach1399@gmail.com')->send(new MailNotify($data, 'Trần Hoàng Thạch'));
 
-        // update notify status
-        $managers = StorageManager::find($id);
-        $managers->notify_status = 1;
-        $managers->save();
+            // update notify status
+            $managers = StorageManager::find($id);
+            $managers->notify_status = 1;
+            $managers->save();
 
-        return redirect()->back()->with('success','Gửi mail thành công!');
+            return redirect()->back()->with('success', 'Gửi mail thành công!');
         } catch (Exception $e) {
-            return redirect()->back()->with('error',$e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    public function getInstallmentList() {
+    public function getInstallmentList()
+    {
         $this->data['installments'] = Installment::where('payer', Auth::user()->id)->get();
         return view('pages.admin.installment_list')->with($this->data);
     }
 
-    public function getAddInstallmentList() {
+    public function getAddInstallmentList()
+    {
         return view('pages.admin.add_installment_list');
     }
 
-    public function AddInstallmentList(Request $re) {
+    public function AddInstallmentList(Request $re)
+    {
         try {
 
             DB::beginTransaction();
@@ -477,16 +539,16 @@ class AdminController extends Controller
 
             $arr_date = [];
             $temp_date = $re->start_date;
-            for($index = 0; $index < $re->cycle; $index++){
+            for ($index = 0; $index < $re->cycle; $index++) {
                 array_push($arr_date, $temp_date);
                 $temp_date =  date('Y-m-d', strtotime("+1 months", strtotime($temp_date)));
             }
 
-            forEach($arr_date as $date) {
+            foreach ($arr_date as $date) {
                 $ins_detail = new InstallmentDetail;
                 $ins_detail->installment_id = $installment->id;
                 $ins_detail->pay_date = $date;
-                $ins_detail->trans_amout = $re->trans_amount/$re->cycle;
+                $ins_detail->trans_amout = $re->trans_amount / $re->cycle;
                 $ins_detail->status = 0;
                 $ins_detail->payer = Auth::user()->id;
                 $ins_detail->save();
@@ -494,16 +556,17 @@ class AdminController extends Controller
 
 
             DB::commit();
-            return redirect()->back()->with('success','Thêm thành công!');
+            return redirect()->back()->with('success', 'Thêm thành công!');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error',$ex->getMessage());
+            return redirect()->back()->with('error', $ex->getMessage());
         }
     }
 
-    public function InstallmentDetail($id) {
+    public function InstallmentDetail($id)
+    {
         $installment = Installment::find($id);
-        $details = InstallmentDetail::where('installment_id',$id)->get();
+        $details = InstallmentDetail::where('installment_id', $id)->get();
 
         $this->data['installment'] = $installment;
         $this->data['ins_detail'] = $details;
@@ -512,7 +575,8 @@ class AdminController extends Controller
         return view('pages.admin.installment_detail')->with($this->data);
     }
 
-    public function CheckOutInstallment($id, $detail) {
+    public function CheckOutInstallment($id, $detail)
+    {
         try {
             DB::beginTransaction();
             $details = InstallmentDetail::find($detail);
@@ -541,68 +605,74 @@ class AdminController extends Controller
             } else {
                 $daily->percent = "0,100";
             }
-            
+
             $daily->category = 6;
             $daily->save();
 
             DB::commit();
-            return redirect()->back()->with('success','Cập nhật thành công');
+            return redirect()->back()->with('success', 'Cập nhật thành công');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error',$ex->getMessage());
+            return redirect()->back()->with('error', $ex->getMessage());
         }
     }
 
-    public function AjaxInstallmentDetail(Request $re) {
+    public function AjaxInstallmentDetail(Request $re)
+    {
         $ins_detail = InstallmentDetail::where('installment_id', $re->id)->get();
-        return response()->json(['detail'=>$ins_detail]);
+        return response()->json(['detail' => $ins_detail]);
     }
 
-    public function statistical($month,$year) {
+    public function statistical($month, $year)
+    {
         $this->data['statis'] = DB::table('daily_costs')
-        ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
-        ->whereRaw(DB::Raw('MONTH(date) = '.$month.' and YEAR(date) = '.$year.' and payer = '.Auth::user()->id.' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
-        ->join('categories','daily_costs.category','=','categories.id')
-        ->groupBy('categories.name')
-        ->get();
+            ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
+            ->whereRaw(DB::Raw('MONTH(date) = ' . $month . ' and YEAR(date) = ' . $year . ' and payer = ' . Auth::user()->id . ' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
+            ->join('categories', 'daily_costs.category', '=', 'categories.id')
+            ->groupBy('categories.name')
+            ->get();
 
         $this->data['month'] = $month;
         $this->data['year'] = $year;
         return view('pages.admin.statistical')->with($this->data);
     }
 
-    public function filterStatistical(Request $re) {
+    public function filterStatistical(Request $re)
+    {
         $this->data['statis'] = DB::table('daily_costs')
-        ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
-        ->whereRaw(DB::Raw('MONTH(date) = '.$re->month.' and YEAR(date) = '.$re->year.' and payer = '.Auth::user()->id.' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
-        ->join('categories','daily_costs.category','=','categories.id')
-        ->groupBy('categories.name')
-        ->get();
+            ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
+            ->whereRaw(DB::Raw('MONTH(date) = ' . $re->month . ' and YEAR(date) = ' . $re->year . ' and payer = ' . Auth::user()->id . ' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
+            ->join('categories', 'daily_costs.category', '=', 'categories.id')
+            ->groupBy('categories.name')
+            ->get();
 
         $this->data['month'] = $re->month;
         $this->data['year'] = $re->year;
         return view('pages.admin.statistical')->with($this->data);
     }
 
-    public function statisticalCompare(){
+    public function statisticalCompare()
+    {
         $this->data = $this->getStatisCompare(date('Y'), 1, date('m'));
         return view('pages.admin.statistical-compare')->with($this->data);
     }
 
-    public function filterCompareStatistical(Request $re) {
+    public function filterCompareStatistical(Request $re)
+    {
         $this->data = $this->getStatisCompare($re->year, $re->month_from, $re->month_to);
         return view('pages.admin.statistical-compare')->with($this->data);
     }
 
-    private function getStatisCompare($year, $month_from, $month_to) {
+    private function getStatisCompare($year, $month_from, $month_to)
+    {
         $arr_data = [];
-        for($i = $month_from; $i <= $month_to; $i++) {
+        for ($i = $month_from; $i <= $month_to; $i++) {
             $statis = DB::table('daily_costs')
-            ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
-            ->whereRaw(DB::Raw('MONTH(date) = '.$i.' and YEAR(date) = '.$year.' and payer = '.Auth::user()->id.' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
-            ->join('categories','daily_costs.category','=','categories.id')
-            ->groupBy('categories.name')
-            ->get();
+                ->selectRaw(DB::Raw('categories.name, sum(daily_costs.total) as total'))
+                ->whereRaw(DB::Raw('MONTH(date) = ' . $i . ' and YEAR(date) = ' . $year . ' and payer = ' . Auth::user()->id . ' and daily_costs.deleted_at is null and daily_costs.is_together = 0'))
+                ->join('categories', 'daily_costs.category', '=', 'categories.id')
+                ->groupBy('categories.name')
+                ->get();
             // $statis['month'] = $i;
 
             array_push($arr_data, $statis);
@@ -614,27 +684,29 @@ class AdminController extends Controller
         return $this->data;
     }
 
-    public function NoftifyAndStorageManagement(){
-        $this->data['managers'] = StorageManager::where('year',date('Y'))->orderBy('month','asc')->get();
+    public function NoftifyAndStorageManagement()
+    {
+        $this->data['managers'] = StorageManager::where('year', date('Y'))->orderBy('month', 'asc')->get();
         return view('pages.admin.notify_storage_manager')->with($this->data);
     }
 
-    public function CleanStorage($id) {
+    public function CleanStorage($id)
+    {
         try {
             DB::beginTransaction();
             $storage = StorageManager::find($id);
             $storage->storage_status = 1;
             $storage->save();
             $images = DB::table('daily_costs')
-            ->whereRaw(DB::raw('MONTH(date) = '.$storage->month.' and YEAR(date) = '.date('Y').' and deleted_at is null and daily_costs.is_together = 1'))
-            ->get();
+                ->whereRaw(DB::raw('MONTH(date) = ' . $storage->month . ' and YEAR(date) = ' . date('Y') . ' and deleted_at is null and daily_costs.is_together = 1'))
+                ->get();
 
             $length = count($images);
             $count = 0;
-            for($i=0; $i<$length; $i++) {
-                if($images[$i]->image != null) {
-                    $path = "img/".$images[$i]->image;
-                    if(file_exists($path)){
+            for ($i = 0; $i < $length; $i++) {
+                if ($images[$i]->image != null) {
+                    $path = "img/" . $images[$i]->image;
+                    if (file_exists($path)) {
                         unlink($path);
                         $count++;
                         $old = DailyCost::find($images[$i]->id);
@@ -644,20 +716,21 @@ class AdminController extends Controller
                 }
             }
             DB::commit();
-            return redirect()->back()->with('success','Đã xoá '.$count.' hoá đơn!');
+            return redirect()->back()->with('success', 'Đã xoá ' . $count . ' hoá đơn!');
         } catch (Exception $ex) {
             DB::rollback();
-            return redirect()->back()->with('error',$ex->getMessage());
+            return redirect()->back()->with('error', $ex->getMessage());
         }
-
     }
 
-    public function getBalanceList(){
+    public function getBalanceList()
+    {
         $this->data['balances'] = Balance::all();
         return view('pages.admin.balance_view')->with($this->data);
     }
 
-    public function addBalance(BalanceRequest $re){
+    public function addBalance(BalanceRequest $re)
+    {
         try {
             DB::beginTransaction();
             $balance = new Balance();
@@ -668,23 +741,90 @@ class AdminController extends Controller
             $balance->total_used = 0;
             $balance->save();
             DB::commit();
-            return redirect()->back()->with('success','Thêm thành công!');
+            return redirect()->back()->with('success', 'Thêm thành công!');
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error','Thêm thất bại!');
+            return redirect()->back()->with('error', 'Thêm thất bại!');
         }
     }
 
-    public function getCostCalculation() {
-        if(session()->has('data')) {
+    public function getCostCalculation()
+    {
+        if (session()->has('data')) {
             session()->forget('data');
         }
-        
+
         return view('pages.admin.cost_caculator');
     }
 
-    public function calculateCost(Request $re) {
-        $arr_name = explode(', ',$re->name);
-        return redirect()->back()->with('data',array($re->all(), $arr_name));
+    public function calculateCost(Request $re)
+    {
+        $arr_name = explode(', ', $re->name);
+        return redirect()->back()->with('data', array($re->all(), $arr_name));
+    }
+
+    public function getAccountList()
+    {
+        $this->data['accounts'] = AccountManager::where('author', Auth::user()->id)->get();
+        return view('pages.admin.account_manager')->with($this->data);
+    }
+
+    public function addAccount(Request $re)
+    {
+        try {
+            DB::beginTransaction();
+            // $encryptedPass = Crypt::encryptString($re->pass);
+
+            $account = new AccountManager;
+            $account->name = $re->name;
+            $account->username = $re->username;
+            $account->pass = $re->pass;
+            $account->author = Auth::user()->id;
+
+            $account->save();
+            DB::commit();
+            return redirect()->back()->with('success', 'Thêm thành công!');
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editAccount(Request $re)
+    {
+        try {
+            DB::beginTransaction();
+            // $encryptedPass = Crypt::encryptString($re->pass);
+
+            $account = AccountManager::find($re->id);
+            $account->name = $re->name;
+            $account->username = $re->username;
+            $account->pass = $re->pass;
+            $account->author = Auth::user()->id;
+
+            $account->save();
+            DB::commit();
+            return redirect()->back()->with('success', 'Sửa thành công!');
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function deleteAccount($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $account = AccountManager::find($id);
+            $account->delete();
+
+            $account->save();
+            DB::commit();
+            return redirect()->back()->with('success', 'Xoá thành công!');
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }

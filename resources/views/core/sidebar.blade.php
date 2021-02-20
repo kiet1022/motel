@@ -7,7 +7,7 @@
             {{-- <i class="fas fa-laugh-wink"></i> --}}
             <img class="img-profile rounded-circle" src="{{ asset('img/ava/'.Auth::user()->avatar) }}" width="40" height="40">
         </div>
-        <div class="sidebar-brand-text mx-3">Phòng 8 <sup>(^-^)</sup></div>
+        <div class="sidebar-brand-text mx-3">B14-14 <sup>(^-^)</sup></div>
     </a>
 
     <!-- Divider -->
@@ -41,7 +41,8 @@
                 <a class="collapse-item" href="{{ route('get_add_fixed_cost_view') }}">Chi phí cố định</a>
                 <a class="collapse-item" href="{{ route('notify_storage_management') }}">Thông báo - Dung lượng</a>
                 <a class="collapse-item" href="{{ route('balance_list') }}">Số dư</a>
-                <a class="collapse-item" href="{{ route('cost_calculation') }}">Chia tiền</a>
+                {{-- <a class="collapse-item" href="{{ route('cost_calculation') }}">Chia tiền</a> --}}
+                <a class="collapse-item" href="{{ route('account_list') }}">Qlý Account</a>
                 {{-- <a class="collapse-item" href="{{ route('get_daily_cost_view') }}">Chi tiêu chung</a>
                 <a class="collapse-item" href="{{ route('get_personal_daily_cost_view') }}">Chi tiêu cá nhân</a> --}}
             </div>

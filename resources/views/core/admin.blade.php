@@ -16,6 +16,8 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/common.css') }}" rel="stylesheet">
+
+    <meta name="format-detection" content="telephone=no">
     @yield('css')
     <title>@yield('title')</title>
 </head>

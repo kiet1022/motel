@@ -173,9 +173,14 @@
 
                         @foreach ($users as $key => $user)
                             <div class="col-lg-6 form-group percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
-                                <label for="percent">Chia (%) {{explode(' ', $user->name)[2]}} </label>
-                                <input type="text" name="percent[]" class="percent-per-person form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ old('percent') ? old('percent')[$key] : '50' }}" required>
-                            {{-- error --}}
+                                <div class="form-check">
+                                    <input type="checkbox" name="devided[]" class="form-check-input" value="{{ old('devided') ? old('devided')[$key] : $user->id }}" checked>
+                                    <label class="form-check-label" for="percent">Chia {{explode(' ', $user->name)[2]}} </label>
+                                </div>
+                                
+                                {{-- <input type="text" name="percent[]" class="percent-per-person form-control" maxlength="3" placeholder="Nhập nội dung" value="{{ old('percent') ? old('percent')[$key] : '25' }}" required> --}}
+
+                                {{-- error --}}
                                 @if ($errors->get('percent'))
                                     <div class="cm-inline-form cm-error">
                                         <ul class="cm-ul-error" style="padding-left: 0px;">
@@ -188,6 +193,29 @@
                             </div>
                         @endforeach
                         
+                        <div class="col-lg-12 percent @if ($together == config('constants.COST_TYPE.PERSONAL')) d-none @endif">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="devided-more" name="devided_more">
+                                <label class="form-check-label" for="percent">Chia thêm </label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 form-group d-none devided">
+                            <label for="name" class="mb-2 mr-sm-2">Tên</label>
+                            <input type="text" id="name" class="form-control mb-2 mr-sm-2" placeholder="Nhập tên (cách nhau bởi dấu cách)" name="name">
+                            
+                            {{-- error --}}
+                            @if ($errors->get('total'))
+                                <div class="cm-inline-form cm-error">
+                                    <ul class="cm-ul-error" style="padding-left: 0px;">
+                                    @foreach ($errors->get('total') as $total)
+                                        <li>{{$total}}</li>
+                                    @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
+
                         <div class="col-lg-12">
                             <label for="image">Ảnh hóa đơn (nếu có)</label>
                             <input type="file" id="image" class="form-control" name="image">
@@ -314,6 +342,15 @@
             $('#total_value').val($('#total').val());
             $("form").submit();
         });
+
+        $('#devided-more').on('change', function(e){
+            if ($(this).is(':checked')){
+                $('.devided').removeClass('d-none')
+                $('#devided-more').val('1');
+            } else {
+                $('#devided-more').val('0');
+            }
+        })
     });
 </script>
 @endsection
