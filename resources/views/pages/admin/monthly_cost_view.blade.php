@@ -137,7 +137,7 @@
         table#table1 td:nth-of-type(4):before { content: "Kiệt:"; font-weight: bold;}
         table#table1 td:nth-of-type(5):before { content: "Huyền:"; font-weight: bold;}
         table#table1 td:nth-of-type(6):before { content: "Hùng:"; font-weight: bold;}
-        table#table1 td:nth-of-type(7):before { content: "Long:"; font-weight: bold;}
+        /* table#table1 td:nth-of-type(7):before { content: "Long:"; font-weight: bold;} */
         
         /*
         Label of child table
@@ -149,9 +149,9 @@
         #table1 .table-detail td:nth-of-type(4):before { content: "Thực chi (Kiệt):"; font-weight: bold;}
         #table1 .table-detail td:nth-of-type(5):before { content: "Thực chi (Huyền):"; font-weight: bold;}
         #table1 .table-detail td:nth-of-type(6):before { content: "Thực chi (Hùng):"; font-weight: bold;}
-        #table1 .table-detail td:nth-of-type(7):before { content: "Thực chi (Long):"; font-weight: bold;}
-        #table1 .table-detail td:nth-of-type(8):before { content: "Thực chi (Khác):"; font-weight: bold;}
-        #table1 .table-detail td:nth-of-type(9):before { content: "Hóa đơn:"; font-weight: bold;}
+        /* #table1 .table-detail td:nth-of-type(7):before { content: "Thực chi (Long):"; font-weight: bold;} */
+        #table1 .table-detail td:nth-of-type(7):before { content: "Thực chi (Khác):"; font-weight: bold;}
+        #table1 .table-detail td:nth-of-type(8):before { content: "Hóa đơn:"; font-weight: bold;}
         #table1 .table-detail td:nth-of-type(9) { text-align: unset; }
     }
 </style>
@@ -274,13 +274,13 @@
                 $totalTwo = 0;
                 $totalThree = 0;
                 $totalShow = 0;
-                $totalFour = 0;
+                // $totalFour = 0;
 
                 // Da chi
                 $spentOne = 0;
                 $spentTwo = 0;
                 $spentThree = 0;
-                $spentFour = 0;
+                // $spentFour = 0;
                 
                 foreach ($costs as $cost) {
                     // dd($cost[1]->total);
@@ -298,9 +298,9 @@
                             case 4: // Hung
                                 $spentThree += $ct->total;
                                 break;
-                            case 5: // Long
-                                $spentFour += $ct->total;
-                                break;
+                            // case 5: // Long
+                            //     $spentFour += $ct->total;
+                            //     break;
                         }
 
                         foreach ($ct->details as $detail) {
@@ -314,9 +314,9 @@
                             case 4: // Hung
                                 $totalThree += $detail->cost;
                                 break;
-                            case 5: // Long
-                                $totalFour += $detail->cost;
-                                break;
+                            // case 5: // Long
+                            //     $totalFour += $detail->cost;
+                            //     break;
                         }
                         }
                     }
@@ -361,11 +361,11 @@
                             <br>Thực chi: <span class="text-danger">{{ number_format($totalThree) }} ₫</span>
                             <br>Đã chi: <span class="text-danger">{{ number_format($spentThree) }} ₫</span>
                         </div>
-                        <div class="col-12 border" style="font-weight: bold">
+                        {{-- <div class="col-12 border" style="font-weight: bold">
                             <span class="text-primary">Long</span> ({!! showFinalCost($spentFour - $totalFour) !!})
                             <br>Thực chi: <span class="text-danger">{{ number_format($totalFour) }} ₫</span>
                             <br>Đã chi: <span class="text-danger">{{ number_format($spentFour) }} ₫</span>
-                        </div>
+                        </div> --}}
                     </div>
                     <table id="table1" class="table table-bordered">
                         <thead class="thead-light">
@@ -376,7 +376,7 @@
                                 <th>Kiệt</th>
                                 <th>Huyền</th>
                                 <th>Hùng</th>
-                                <th>Long</th>
+                                {{-- <th>Long</th> --}}
                                 <th></th>
                             </tr>
                         </thead>
@@ -406,9 +406,9 @@
                                             case 4: // Hung
                                                 $ttThree += $cost[$i]->details[$j]->cost;
                                                 break;
-                                            case 5: // Long
-                                                $ttFour += $cost[$i]->details[$j]->cost;
-                                                break;
+                                            // case 5: // Long
+                                            //     $ttFour += $cost[$i]->details[$j]->cost;
+                                            //     break;
                                         }
                                     }
                                     // $percent = explode(",", $cost[$i]->percent);
@@ -428,9 +428,9 @@
                                 <td>
                                     <span style="font-weight: normal;" class="text-primary">{{number_format($ttThree)}} ₫</span>
                                 </td>
-                                <td>
+                                {{-- <td>
                                     <span style="font-weight: normal;" class="text-primary">{{number_format($ttFour)}} ₫</span>
-                                </td>
+                                </td> --}}
                                 <td>                                            
                                     {!! $cost !!}
                                 </td>
@@ -464,10 +464,10 @@
                                     <th colspan="8">Hùng: <span class="text-danger">{{ number_format($totalThree) }} ₫</span></th>
                                     <th colspan="8">Hùng: <span class="text-danger">{{ number_format($spentThree) }} ₫</span></th>
                                 </tr>
-                                <tr>
+                                {{-- <tr>
                                     <th colspan="8">Long: <span class="text-danger">{{ number_format($totalFour) }} ₫</span></th>
                                     <th colspan="8">Long: <span class="text-danger">{{ number_format($spentFour) }} ₫</span></th>
-                                </tr>
+                                </tr> --}}
                             </tfoot>
                         </table>
                     </div>
@@ -494,11 +494,11 @@
                             <br>Thực chi: <span class="text-danger">{{ number_format($totalThree) }} ₫</span>
                             <br>Đã chi: <span class="text-danger">{{ number_format($spentThree) }} ₫</span>
                         </div>
-                        <div class="col-12 border" style="font-weight: bold">
+                        {{-- <div class="col-12 border" style="font-weight: bold">
                             <span class="text-primary">Long</span> ({!! showFinalCost($spentFour - $totalFour) !!})
                             <br>Thực chi: <span class="text-danger">{{ number_format($totalFour) }} ₫</span>
                             <br>Đã chi: <span class="text-danger">{{ number_format($spentFour) }} ₫</span>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -523,7 +523,7 @@
             targets:   0,
         },
         {
-            "targets": [ 7 ],
+            "targets": [ 6 ],
             "visible": false,
             "searchable": false
         },
@@ -566,7 +566,7 @@
         try {
             var tr = $(this).closest('tr');
             var row = table.row( tr );
-            var data = JSON.parse(row.data()[7]);
+            var data = JSON.parse(row.data()[6]);
             
             if ( row.child.isShown() ) {
                 // This row is already open - close it
@@ -605,7 +605,7 @@
                 html += '<th>Thực chi (Kiệt)</th>';
                 html += '<th>Thực chi (Huyền)</th>';
                 html += '<th>Thực chi (Hùng)</th>';
-                html += '<th>Thực chi (Long)</th>';
+                // html += '<th>Thực chi (Long)</th>';
                 html += '<th>Thực chi (Khác)</th>';
             }
             html += '<th>Hóa đơn</th>';
@@ -625,19 +625,19 @@
                     for (var i = 0; i < element.details.length; i++) {
                         var user_id = element.details[i].user_id;
                         switch (user_id) {
-                            case 1: // Kiet
+                            case "1": // Kiet
                                 costKiet += element.details[i].cost;
                                 break;
-                            case 3: // Huyen
+                            case "3": // Huyen
                                 costHuyen += element.details[i].cost;
                                 break;
-                            case 4: // Hung
+                            case "4": // Hung
                                 costHung += element.details[i].cost;
                                 break;
-                            case 5: // Long
-                                costLong += element.details[i].cost;
-                                break;
-                            case 0: 
+                            // case "5": // Long
+                            //     costLong += element.details[i].cost;
+                            //     break;
+                            case "0": 
                                 costOther += element.details[i].cost;
                                 nameOther += element.details[i].name+" ";
                                 break;
@@ -646,7 +646,7 @@
                     html += '<td style="font-weight: bold;"><span class="text-danger">'+numberFormat(costKiet)+'</span></td>';
                     html += '<td style="font-weight: bold;"><span class="text-danger">'+numberFormat(costHuyen)+'</span></td>';
                     html += '<td style="font-weight: bold;"><span class="text-danger">'+numberFormat(costHung)+'</span></td>';
-                    html += '<td style="font-weight: bold;"><span class="text-danger">'+numberFormat(costLong)+'</span></td>';
+                    // html += '<td style="font-weight: bold;"><span class="text-danger">'+numberFormat(costLong)+'</span></td>';
                     html += '<td style="font-weight: bold;"><span class="text-danger">'+numberFormat(costOther)+'<br>'+nameOther+'</span></td>';
                 }
                 

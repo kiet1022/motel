@@ -95,7 +95,6 @@ Route::get('/test', function () {
     // Mail::to('kiet1022@gmail.com')->send(new MailNotify());
     // session()->forget('coffee');
     // return bcrypt('000000');
-    return $details = DailyCost::with('details')->where('id', '=', 442)->get();
 });
 
 // Route::post('test-ocr', function (Request $re) {

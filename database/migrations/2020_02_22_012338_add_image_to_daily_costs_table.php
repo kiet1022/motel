@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddTotalPerToDaiyCost extends Migration
+class AddImageToDailyCostsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class AddTotalPerToDaiyCost extends Migration
     public function up()
     {
         Schema::table('daily_costs', function (Blueprint $table) {
-            $table->integer('total_per_one')->nullable();
-            $table->integer('total_per_two')->nullable();
+            $table->string('image')->null();
         });
     }
 

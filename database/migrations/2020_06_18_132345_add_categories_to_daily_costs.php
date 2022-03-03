@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddImgAllowNullDailyCosts extends Migration
+class AddCategoriesToDailyCosts extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddImgAllowNullDailyCosts extends Migration
     public function up()
     {
         Schema::table('daily_costs', function (Blueprint $table) {
-            $table->string('image')->nullable()->change();
+            $table->unsignedInteger('category')->nullable();
         });
     }
 
