@@ -7,7 +7,7 @@
             {{-- <i class="fas fa-laugh-wink"></i> --}}
             <img class="img-profile rounded-circle" src="{{ asset('img/ava/'.Auth::user()->avatar) }}" width="40" height="40">
         </div>
-        <div class="sidebar-brand-text mx-3">B14-14 <sup>(^-^)</sup></div>
+        <div class="sidebar-brand-text mx-3">A5-10 <sup>(^-^)</sup></div>
     </a>
 
     <!-- Divider -->
