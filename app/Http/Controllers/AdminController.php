@@ -99,7 +99,7 @@ class AdminController extends Controller
 
     public function getAddDailyCostView($together)
     {
-        $this->data['users'] = User::all();
+        $this->data['users'] = User::where('deleted_at','is not null')->get();
         $this->data['categories'] = Category::all();
         $this->data['installments'] = Installment::with(['detail'])->get();
         // $this->data['ins_details'] = InstallmentDetail::all();
