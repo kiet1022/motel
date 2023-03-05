@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Topdev Catalog Feed From System</title>
+        <description><![CDATA[Search for IT job opportunities across the Viet Nam on TopDev. Browse by IT job category,
+            city, employer and more. Get a head start and post your resume.]]>
+        </description>
+        <link>
+        <![CDATA[https://topdev.vn]]></link>
+
+                    <item>
+                <g:id><![CDATA[2011521]]></g:id>
+                <g:title><![CDATA[Mình là gì của nhau | Lou Hoàng]]></g:title>
+                <g:description><![CDATA[Yeah TV promotion tuyển Mình là gì của nhau | Lou Hoàng | TopDev]]></g:description>
+                <g:link><![CDATA[https://topdev.vn/viec-lam/ky-su-lap-trinh-nhung-biet-tieng-han-brycen-vietnam-2-2017503?utm_source=facebook&utm_medium=dynamic_catalog&utm_campaign=job_css&utm_content=css_hcm&utm_term=css]]></g:link>
+                                    <g:image_link><![CDATA[https://topdev.vn/blog/wp-content/uploads/2020/03/topdev-cover2.png]]></g:image_link>
+                                <g:brand><![CDATA[Yeah TV promotion]]></g:brand>
+                <g:condition>new</g:condition>
+                <g:availability>in stock</g:availability>
+                <g:price><![CDATA[0 USD]]></g:price>
+            </item>
+        
+    </channel>
+</rss>
